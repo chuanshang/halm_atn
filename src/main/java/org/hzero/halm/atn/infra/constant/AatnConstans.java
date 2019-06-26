@@ -61,6 +61,10 @@ public interface AatnConstans {
 		 * BOOLEAN
 		 */
 		String BOOLEAN = "BOOLEAN";
+		/**
+		 * BIGDECIMAL
+		 */
+		String BIGDECIMAL = "BIGDECIMAL";
 	}
 
 	/**

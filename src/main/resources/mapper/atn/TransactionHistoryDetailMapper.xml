@@ -28,11 +28,11 @@
         SELECT
           thd.field_value
         FROM
-          aatn_transaction_history_detail thd
+        aatn_txn_history_detail thd
         WHERE
           thd.history_detail_id = (
           SELECT max( history_detail_id )
-            FROM aatn_transaction_history_detail detail
+            FROM aatn_txn_history_detail detail
             LEFT JOIN aatn_transaction_history header ON detail.transaction_history_id = header.transaction_history_id
             <where>
                 and detail.tenant_id = #{tenantId}
@@ -71,7 +71,7 @@
         header.title_overview,
         tt.short_name type_name
         FROM
-        aatn_transaction_history_detail thd
+        aatn_txn_history_detail thd
         INNER JOIN aatn_transaction_history th ON thd.transaction_history_id = th.transaction_history_id
         INNER JOIN aafm_transaction_types tt ON tt.transaction_type_id = th.transaction_type_id
         INNER JOIN aatn_handover_order_header header ON th.transaction_type_id = header.transaction_type_id
@@ -101,7 +101,7 @@
             header.title_overview,
             tt.short_name type_name
         FROM
-            aatn_transaction_history_detail thd
+            aatn_txn_history_detail thd
             INNER JOIN aatn_transaction_history th ON thd.transaction_history_id = th.transaction_history_id
             INNER JOIN aafm_transaction_types tt ON tt.transaction_type_id = th.transaction_type_id
             INNER JOIN aatn_transfer_order_header header ON th.transaction_type_id = header.transaction_type_id
@@ -132,7 +132,7 @@
             header.title_overview,
             tt.short_name type_name
         FROM
-            aatn_transaction_history_detail thd
+            aatn_txn_history_detail thd
             INNER JOIN aatn_transaction_history th ON thd.transaction_history_id = th.transaction_history_id
             INNER JOIN aafm_transaction_types tt ON tt.transaction_type_id = th.transaction_type_id
             INNER JOIN aatn_scrap_order_header header ON th.transaction_type_id = header.transaction_type_id
@@ -163,7 +163,7 @@
             header.title_overview,
             tt.short_name type_name
         FROM
-            aatn_transaction_history_detail thd
+            aatn_txn_history_detail thd
             INNER JOIN aatn_transaction_history th ON thd.transaction_history_id = th.transaction_history_id
             INNER JOIN aafm_transaction_types tt ON tt.transaction_type_id = th.transaction_type_id
             INNER JOIN aatn_dispose_order_header header ON th.transaction_type_id = header.transaction_type_id
@@ -194,7 +194,7 @@
             header.title_overview,
             tt.short_name type_name
         FROM
-            aatn_transaction_history_detail thd
+            aatn_txn_history_detail thd
             INNER JOIN aatn_transaction_history th ON thd.transaction_history_id = th.transaction_history_id
             INNER JOIN aafm_transaction_types tt ON tt.transaction_type_id = th.transaction_type_id
             INNER JOIN aatn_change_order_header header ON th.transaction_type_id = header.transaction_type_id

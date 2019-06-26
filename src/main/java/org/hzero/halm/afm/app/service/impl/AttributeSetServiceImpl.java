@@ -14,6 +14,7 @@ import org.hzero.halm.afm.domain.repository.AttributeLineRepository;
 import org.hzero.halm.afm.domain.repository.AttributeSetRepository;
 import org.hzero.halm.afm.domain.vo.AttributeLineDetailExportVO;
 import org.hzero.halm.afm.domain.vo.AttributeSetDetailExportVO;
+import org.hzero.halm.afm.infra.mapper.AttributeLineMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +38,7 @@ public class AttributeSetServiceImpl implements AttributeSetService {
 	@Autowired
 	private AttributeLineRepository attributeLineRepository;
 	@Autowired
-	private AttributeLineService attributeLineService;
+	private AttributeLineMapper attributeLineMapper;
 
 	@Override
 	public Page<AttributeSet> pageAttributeSet(PageRequest pageRequest, Long organizationId, AttributeSetDTO queryAttributeSet) {
@@ -56,7 +57,8 @@ public class AttributeSetServiceImpl implements AttributeSetService {
 	@Override
 	public AttributeSet attributeSetDetail(PageRequest pageRequest, Long attributeSetId) {
 		AttributeSet attributeSet = attributeSetRepository.selectByPrimaryKey(attributeSetId);
-		List<AttributeLine> attributeLineList = attributeLineService.pageAndSortBySetId(pageRequest, attributeSetId);
+//		List<AttributeLine> attributeLineList = attributeLineService.pageAndSortBySetId(pageRequest, attributeSetId);
+		List<AttributeLine> attributeLineList =attributeLineMapper.selectBySetId(attributeSetId);
 		lovValueHandle.process(null, attributeLineList);
 		attributeSet.setAttributeLinesList(attributeLineList);
 		return attributeSet;

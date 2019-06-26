@@ -71,7 +71,6 @@
             line.description,
             line.tenant_id,
             line.object_version_number,
-            header.handover_header_id,
             header.transaction_type_id,
             header.process_status headerStatus,
             header.handover_num,

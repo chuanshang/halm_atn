@@ -36,7 +36,7 @@
     <select id="selectOrderLines" resultType="org.hzero.halm.atn.domain.entity.ScrapOrderLine">
         SELECT
             asol.line_num,
-			CONCAT(asoh.scrap_num,'-',asol.line_num) line_num_display,
+			CONCAT(CONCAT(asoh.scrap_num,'-'),asol.line_num) line_num_display,
             asol.scrap_line_id,
             asol.scrap_header_id,
             asol.asset_id,
@@ -76,10 +76,8 @@
     <select id="entryProcess" parameterType="org.hzero.halm.atn.domain.entity.ScrapOrderHeader" resultType="org.hzero.halm.atn.domain.entity.ScrapOrderLine">
         SELECT
             soh.scrap_num scrapNum,
-            asol.scrap_line_id,
-            asol.scrap_header_id,
             asol.line_num,
-			CONCAT(soh.scrap_num,'-',asol.line_num) line_num_display,
+            CONCAT(CONCAT(soh.scrap_num,'-'),asol.line_num) line_num_display,
             asol.scrap_line_id,
             asol.scrap_header_id,
             asol.asset_id,

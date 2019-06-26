@@ -203,6 +203,6 @@
         SELECT aas.asset_status_id
         FROM aafm_asset_status aas
         WHERE aas.tenant_id=#{tenantId} AND aas.user_status_name = '已处置'
-        LIMIT 1
+        and rownum = 1
     </select>
 </mapper>

@@ -23,7 +23,7 @@ import java.util.Set;
 @ApiModel("资产字段历史明细")
 @VersionAudit
 @ModifyAudit
-@Table(name = "aatn_transaction_history_detail")
+@Table(name = "aatn_txn_history_detail")
 public class TransactionHistoryDetail extends AuditDomain {
 
     public static final String FIELD_HISTORY_DETAIL_ID = "historyDetailId";

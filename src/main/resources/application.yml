@@ -2,8 +2,7 @@ spring:
   application:
     name: halm-atn
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://db.hzero.org:3306/halm_atn?useUnicode=true&characterEncoding=utf-8&useSSL=false&autoReconnect=true&failOverReadOnly=false}
+    url: ${SPRING_DATASOURCE_URL:jdbc:oracle:thin:@db.hzero.org:1521:DEV}
     username: ${SPRING_DATASOURCE_USERNAME:hzero}
     password: ${SPRING_DATASOURCE_PASSWORD:hzero}
     max-active: 200

@@ -57,10 +57,10 @@
             apcl.level_path LIKE concat('%/', concat(apc.product_category_id,'/%'))
             OR apcl.level_path LIKE concat(apc.product_category_id,'/%')
             OR apcl.level_path LIKE concat('%/',apc.product_category_id)
-            OR apcl.level_path = apc.product_category_id
+            OR apcl.level_path = to_char(apc.product_category_id)
 
             OR apc.level_path LIKE concat(apcl.level_path, '/%')
-            OR apc.level_path = apcl.product_category_id
+            OR apc.level_path = to_char(apcl.product_category_id)
             OR apc.product_category_id = apcl.product_category_id
             )
             <if test="tenantId != null">

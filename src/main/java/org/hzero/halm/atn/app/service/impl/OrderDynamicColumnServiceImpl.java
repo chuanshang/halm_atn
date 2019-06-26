@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,9 @@ public class OrderDynamicColumnServiceImpl implements OrderDynamicColumnService 
 			case AatnConstans.targetColumnType.INTEGER:
 			case AatnConstans.targetColumnType.BOOLEAN:
 				targetValue = Integer.parseInt(targetColumnValue);
+				break;
+			case AatnConstans.targetColumnType.BIGDECIMAL:
+				targetValue = new BigDecimal(targetColumnValue);
 				break;
 			case AatnConstans.targetColumnType.DATEPICKER:
 			case AatnConstans.targetColumnType.TIME:

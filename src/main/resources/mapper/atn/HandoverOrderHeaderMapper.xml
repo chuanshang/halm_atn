@@ -43,7 +43,6 @@
             HOH.CREATED_BY,
             HOH.LAST_UPDATED_BY,
             HOH.LAST_UPDATE_DATE,
-            HOH.principal_person_id,
             (SELECT HE.NAME FROM HPFM_EMPLOYEE HE where HOH.PRINCIPAL_PERSON_ID = HE.EMPLOYEE_ID) PRINCIPAL_PERSON_NAME,
 
             ATY.SHORT_NAME transactionTypeMeaning,
@@ -114,7 +113,6 @@
             HOH.CREATED_BY,
             HOH.LAST_UPDATED_BY,
             HOH.LAST_UPDATE_DATE,
-            HOH.principal_person_id,
             (SELECT HE.NAME FROM HPFM_EMPLOYEE HE where HOH.PRINCIPAL_PERSON_ID = HE.EMPLOYEE_ID) PRINCIPAL_PERSON_NAME,
 
             ATY.SHORT_NAME transactionTypeMeaning,

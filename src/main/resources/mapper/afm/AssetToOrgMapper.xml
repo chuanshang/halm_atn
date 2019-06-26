@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.afm.infra.mapper.AssetToOrgMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.afm.domain.entity.AssetToOrg">
+        <result column="asset_org_id" property="assetOrgId" jdbcType="DECIMAL"/>
+        <result column="asset_specialty_id" property="assetSpecialtyId" jdbcType="DECIMAL"/>
+        <result column="maint_sites_id" property="maintSitesId" jdbcType="DECIMAL"/>
+        <result column="major_department_id" property="majorDepartmentId" jdbcType="DECIMAL"/>
+        <result column="manage_department_id" property="manageDepartmentId" jdbcType="DECIMAL"/>
+        <result column="priority" property="priority" jdbcType="DECIMAL"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="exportAssetToOrgBySpecialtyId" parameterType="java.lang.String" resultType="org.hzero.halm.afm.domain.vo.AssetToOrgDetailExportVO">
+        SELECT
+        ato.asset_org_id,
+        ato.asset_specialty_id,
+        ato.priority,
+        ato.enabled_flag,
+        ato.object_version_number,
+        ato.tenant_id,
+        ms.maint_sites_name,
+        major.org_name major_department_name,
+        manage.org_name manage_department_name
+        FROM
+        aafm_asset_to_org ato
+        JOIN amdm_maint_sites ms ON ms.maint_sites_id = ato.maint_sites_id
+        LEFT JOIN amdm_organization major ON major.org_id = ato.major_department_id
+        LEFT JOIN amdm_organization manage ON manage.org_id = ato.manage_department_id
+        <where>
+            <if test="assetSpecialtyIdList !=null and assetSpecialtyIdList.size()>0">
+                ato.asset_specialty_id IN
+                <foreach item="specialtyId" collection="assetSpecialtyIdList" separator="," open="(" close=")">
+                    #{specialtyId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectBySpecialtyId" parameterType="java.lang.Long"
+            resultType="org.hzero.halm.afm.domain.entity.AssetToOrg">
+            SELECT
+                ato.asset_org_id,
+                ato.asset_specialty_id,
+                ato.maint_sites_id,
+                ato.major_department_id,
+                ato.manage_department_id,
+                ato.priority,
+                ato.enabled_flag,
+                ato.object_version_number,
+                ato.tenant_id,
+                ms.maint_sites_name,
+                major.org_name major_department_name,
+                manage.org_name manage_department_name
+            FROM
+                aafm_asset_to_org ato
+            JOIN amdm_maint_sites ms ON ms.maint_sites_id = ato.maint_sites_id
+            LEFT JOIN amdm_organization major ON major.org_id = ato.major_department_id
+            LEFT JOIN amdm_organization manage ON manage.org_id = ato.manage_department_id
+            <where>
+                <if test="assetSpecialtyId !=null">
+                    ato.asset_specialty_id = #{assetSpecialtyId}
+                </if>
+            </where>
+    </select>
+</mapper>

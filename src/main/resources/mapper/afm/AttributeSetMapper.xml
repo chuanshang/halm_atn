@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.afm.infra.mapper.AttributeSetMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.afm.domain.entity.AttributeSet">
+        <result column="attribute_set_id" property="attributeSetId" jdbcType="DECIMAL"/>
+        <result column="attribute_set_name" property="attributeSetName" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="exportAttributeSetByIds" parameterType="org.hzero.halm.afm.api.dto.AttributeSetDTO" resultType="org.hzero.halm.afm.domain.vo.AttributeSetDetailExportVO">
+        SELECT aas.attribute_set_id,
+        aas.attribute_set_name,
+        aas.description,
+        aas.enabled_flag
+        FROM aafm_attribute_set aas
+        WHERE aas.tenant_id = #{tenantId}
+            <if test="attributeSetName != null and attributeSetName != ''">
+                <bind name="attributeSetNameLike" value="'%'+attributeSetName+'%'"/>
+                AND aas.attribute_set_name LIKE #{attributeSetNameLike}
+            </if>
+            <if test="enabledFlag != null">
+                AND aas.enabled_flag = #{enabledFlag}
+            </if>
+        <if test="attributeSetIds != null and attributeSetIds != ''">
+            AND aas.attribute_set_id IN
+            <foreach item="attributeSetId" collection="attributeSetIdList" separator="," open="(" close=")">
+                #{attributeSetId}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.afm.infra.mapper.TransactionTypeFieldsMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.afm.domain.entity.TransactionTypeFields">
+        <result column="field_id" property="fieldId" jdbcType="DECIMAL"/>
+        <result column="transation_type_id" property="transationTypeId" jdbcType="DECIMAL"/>
+        <result column="field_class" property="fieldClass" jdbcType="VARCHAR"/>
+        <result column="field_table" property="fieldTable" jdbcType="VARCHAR"/>
+        <result column="field_column" property="fieldColumn" jdbcType="VARCHAR"/>
+        <result column="field_type" property="fieldType" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="listTransactionTypeFields" resultType="org.hzero.halm.afm.domain.entity.TransactionTypeFields">
+        SELECT attf.field_id,
+        attf.transation_type_id,
+        attf.field_column,
+        aadc.column_name field_column_meaning,
+        aadc.column_class field_class,
+        aadc.desc_code,
+        aadc.desc_source_type,
+        aadc.desc_source,
+        aadc.lov_type,
+        aadc.lov_name,
+        attf.field_type,
+        attf.tenant_id,
+        attf.object_version_number,
+        attf.last_updated_by,
+        attf.last_update_date,
+        attf.created_by,
+        attf.creation_date
+        FROM aafm_transaction_type_fields attf,
+        aafm_asset_dynamic_column aadc
+        WHERE 1=1
+        AND aadc.column_code=attf.field_column
+        AND attf.transation_type_id = #{transactionTypesId}
+        AND attf.tenant_id = #{tenantId}
+    </select>
+</mapper>

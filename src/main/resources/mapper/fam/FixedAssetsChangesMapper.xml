@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.fam.infra.mapper.FixedAssetsChangesMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.fam.domain.entity.FixedAssetsChanges">
+        <result column="change_id" property="changeId" jdbcType="DECIMAL"/>
+        <result column="fixed_asset_id" property="fixedAssetId" jdbcType="DECIMAL"/>
+        <result column="period_name" property="periodName" jdbcType="VARCHAR"/>
+        <result column="change_type_code" property="changeTypeCode" jdbcType="VARCHAR"/>
+        <result column="change_value" property="changeValue" jdbcType="DECIMAL"/>
+        <result column="correlated_event" property="correlatedEvent" jdbcType="VARCHAR"/>
+        <result column="accounting_voucher_number" property="accountingVoucherNumber" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="listFixedAssetsChanges" resultType="org.hzero.halm.fam.domain.entity.FixedAssetsChanges">
+        SELECT afac.change_id,
+        afac.change_type_code,
+        afac.accounting_voucher_number,
+        afac.change_value,
+        afac.correlated_event,
+        afac.description,
+        afac.fixed_asset_id,
+        afac.period_name,
+        afac.tenant_id,
+        afac.object_version_number,
+        afac.created_by,
+        afac.creation_date,
+        afac.last_updated_by,
+        afac.last_update_date
+        FROM afam_fixed_assets_changes afac
+        WHERE afac.tenant_id = #{tenantId}
+        <if test="fixedAssetId != null and fixedAssetId != ''">
+           AND afac.fixed_asset_id = #{fixedAssetId}
+        </if>
+        ORDER BY afac.period_name desc
+    </select>
+
+    <select id="listFixedAssetsChangesByFixedAssetsIds" resultType="org.hzero.halm.fam.domain.entity.FixedAssetsChanges">
+        SELECT afac.change_id,
+        afac.change_type_code,
+        afac.accounting_voucher_number,
+        afac.change_value,
+        afac.correlated_event,
+        afac.description,
+        afac.fixed_asset_id,
+        afac.period_name,
+        afac.tenant_id,
+        afac.object_version_number,
+        afac.created_by,
+        afac.creation_date,
+        afac.last_updated_by,
+        afac.last_update_date
+        FROM afam_fixed_assets_changes afac
+        WHERE afac.tenant_id = #{tenantId}
+        <if test="fixedAssetsIdList != null and fixedAssetsIdList.size() > 0">
+            AND afac.fixed_asset_id IN
+            <foreach item="fixedAssetsId" collection="fixedAssetsIdList" separator="," open="(" close=")">
+                #{fixedAssetsId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="listFixedAssetsChangesDTOByIds" resultType="org.hzero.halm.fam.api.dto.FixedAssetsChangesDTO">
+        SELECT afac.change_id,
+        afac.change_type_code,
+        afac.accounting_voucher_number,
+        afac.change_value,
+        afac.correlated_event,
+        afac.description,
+        afac.fixed_asset_id,
+        afac.period_name,
+        afac.tenant_id,
+        afac.object_version_number,
+        afac.created_by,
+        afac.creation_date,
+        afac.last_updated_by,
+        afac.last_update_date
+        FROM afam_fixed_assets_changes afac
+        WHERE afac.tenant_id = #{tenantId}
+        <if test="fixedAssetsIdList != null and fixedAssetsIdList.size() > 0">
+            AND afac.fixed_asset_id IN
+            <foreach item="fixedAssetsId" collection="fixedAssetsIdList" separator="," open="(" close=")">
+                #{fixedAssetsId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="listFixedAssetsChangesDTOByFixedAssetsId" resultType="org.hzero.halm.fam.api.dto.FixedAssetsChangesDTO">
+        SELECT afac.change_id,
+        afac.change_type_code,
+        afac.accounting_voucher_number,
+        afac.change_value,
+        afac.correlated_event,
+        afac.description,
+        afac.fixed_asset_id,
+        afac.period_name,
+        afac.tenant_id,
+        afac.object_version_number,
+        afac.created_by,
+        afac.creation_date,
+        afac.last_updated_by,
+        afac.last_update_date
+        FROM afam_fixed_assets_changes afac
+        WHERE afac.tenant_id = #{tenantId}
+        <if test="fixedAssetsId != null">
+            AND afac.fixed_asset_id = #{fixedAssetsId}
+        </if>
+    </select>
+</mapper>

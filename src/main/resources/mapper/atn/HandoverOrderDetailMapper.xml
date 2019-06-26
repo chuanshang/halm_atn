@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.atn.infra.mapper.HandoverOrderDetailMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.atn.domain.entity.HandoverOrderDetail">
+        <result column="handover_detail_id" property="handoverDetailId" jdbcType="DECIMAL"/>
+        <result column="handover_line_id" property="handoverLineId" jdbcType="DECIMAL"/>
+        <result column="handover_type_code" property="handoverTypeCode" jdbcType="VARCHAR"/>
+        <result column="current_asset_status_id" property="currentAssetStatusId" jdbcType="VARCHAR"/>
+        <result column="target_asset_status_id" property="targetAssetStatusId" jdbcType="DECIMAL"/>
+        <result column="current_owning_person_id" property="currentOwningPersonId" jdbcType="DECIMAL"/>
+        <result column="target_owning_person_id" property="targetOwningPersonId" jdbcType="DECIMAL"/>
+        <result column="current_using_person_id" property="currentUsingPersonId" jdbcType="DECIMAL"/>
+        <result column="target_using_person_id" property="targetUsingPersonId" jdbcType="DECIMAL"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+
+        <result column="cu_owning_person_name" property="currentOwningPersonName" jdbcType="VARCHAR"/>
+        <result column="ta_owning_person_name" property="targetOwningPersonName" jdbcType="VARCHAR"/>
+        <result column="cu_using_person_name" property="currentUsingPersonName" jdbcType="VARCHAR"/>
+        <result column="ta_using_person_name" property="targetUsingPersonName" jdbcType="VARCHAR"/>
+        <result column="current_status_name" property="currentAssetStatusName" jdbcType="VARCHAR"/>
+        <result column="target_status_name" property="targetAssetStatusName" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <select id="selectDetail" resultMap="BaseResultMap">
+        SELECT
+        detail.handover_detail_id,
+        detail.handover_line_id,
+        detail.handover_type_code,
+        detail.current_asset_status_id,
+        detail.target_asset_status_id,
+        detail.current_owning_person_id,
+        (SELECT he.name FROM hzero_platform.hpfm_employee he where detail.current_owning_person_id = he.employee_id)
+        cu_owning_person_name,
+        detail.target_owning_person_id,
+        (SELECT he.name FROM hzero_platform.hpfm_employee he where detail.target_owning_person_id = he.employee_id)
+        ta_owning_person_name,
+        detail.current_using_person_id,
+        (SELECT he.name FROM hzero_platform.hpfm_employee he where detail.current_using_person_id = he.employee_id)
+        cu_using_person_name,
+        detail.target_using_person_id,
+        (SELECT he.name FROM hzero_platform.hpfm_employee he where detail.target_using_person_id = he.employee_id)
+        ta_using_person_name,
+        detail.description,
+        detail.tenant_id,
+        detail.object_version_number,
+        detail.creation_date,
+        detail.created_by,
+        detail.last_updated_by,
+        detail.last_update_date,
+        (
+        SELECT CASE WHEN aStatus.user_status_name IS NULL
+        THEN aStatus.sys_status_name ELSE aStatus.user_status_name
+        END AS current_status_name
+        FROM aafm_asset_status aStatus
+        WHERE detail.current_asset_status_id = aStatus.asset_status_id
+        ) current_status_name,
+        (
+        SELECT CASE WHEN aStatus2.user_status_name IS NULL
+        THEN aStatus2.sys_status_name ELSE aStatus2.user_status_name
+        END AS target_status_name
+        FROM aafm_asset_status aStatus2
+        WHERE
+        detail.target_asset_status_id = aStatus2.asset_status_id
+        ) target_status_name
+        FROM
+        aatn_handover_order_detail detail
+        <where>
+            and detail.tenant_id = #{tenantId}
+            <if test="handoverLineId != null">
+                and detail.handover_line_id = #{handoverLineId}
+            </if>
+        </where>
+
+    </select>
+</mapper>

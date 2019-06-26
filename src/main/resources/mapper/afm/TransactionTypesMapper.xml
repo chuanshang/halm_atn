@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.afm.infra.mapper.TransactionTypesMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.afm.domain.entity.TransactionTypes">
+        <result column="transaction_type_id" property="transactionTypeId" jdbcType="DECIMAL"/>
+        <result column="basic_type_code" property="basicTypeCode" jdbcType="VARCHAR"/>
+        <result column="transaction_type_code" property="transactionTypeCode" jdbcType="VARCHAR"/>
+        <result column="short_name" property="shortName" jdbcType="VARCHAR"/>
+        <result column="long_name" property="longName" jdbcType="VARCHAR"/>
+        <result column="parent_type_id" property="parentTypeId" jdbcType="DECIMAL"/>
+        <result column="level_path" property="levelPath" jdbcType="VARCHAR"/>
+        <result column="level_number" property="levelNumber" jdbcType="DECIMAL"/>
+        <result column="code_rule_id" property="codeRuleId" jdbcType="DECIMAL"/>
+        <result column="need_twice_confirm" property="needTwiceConfirm" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="tag" property="tag" jdbcType="VARCHAR"/>
+        <result column="organization_scope" property="organizationScope" jdbcType="VARCHAR"/>
+        <result column="status_scope" property="statusScope" jdbcType="VARCHAR"/>
+        <result column="specialty_scope" property="specialtyScope" jdbcType="VARCHAR"/>
+        <result column="special_asset_flag" property="specialAssetFlag" jdbcType="DECIMAL"/>
+        <result column="special_asset" property="specialAsset" jdbcType="VARCHAR"/>
+        <result column="check_target_org_flag" property="checkTargetOrgFlag" jdbcType="DECIMAL"/>
+        <result column="check_current_org_flag" property="checkCurrentOrgFlag" jdbcType="DECIMAL"/>
+        <result column="cross_legal_flag" property="crossLegalFlag" jdbcType="DECIMAL"/>
+        <result column="stauts_update_flag" property="stautsUpdateFlag" jdbcType="DECIMAL"/>
+        <result column="target_asset_status_id" property="targetAssetStatusId" jdbcType="VARCHAR"/>
+        <result column="inprocess_asset_status_id" property="inprocessAssetStatusId" jdbcType="VARCHAR"/>
+        <result column="target_asset_status_scope" property="targetAssetStatusScope" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="basic_column_flag" property="basicColumnFlag" jdbcType="DECIMAL"/>
+        <result column="attribute_column_flag" property="attributeColumnFlag" jdbcType="DECIMAL"/>
+        <result column="tracking_flag" property="trackingFlag" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <sql id="select_field">
+        ass.sys_status_name target_asset_status_name,
+        ass2.sys_status_name inprocess_asset_status_name,
+        hcr.rule_name code_rule_name,
+    </sql>
+
+    <sql id="rel_table">
+        LEFT JOIN aafm_asset_status ass ON ass.asset_status_id = att.target_asset_status_id
+        LEFT JOIN aafm_asset_status ass2 ON ass2.asset_status_id = att.inprocess_asset_status_id
+        LEFT JOIN hpfm_code_rule hcr ON (hcr.rule_code = att.code_rule AND hcr.tenant_id = att.tenant_id)
+    </sql>
+
+    <select id="selectAllNodesTransactionTypes" resultType="org.hzero.halm.afm.api.dto.TransactionTypesDTO">
+        SELECT
+        att.transaction_type_id,
+        att.basic_type_code,
+        att.transaction_type_code,
+        att.short_name,
+        att.long_name,
+        att.parent_type_id,
+        att.level_path,
+        att.level_number,
+        att.code_rule,
+        att.need_twice_confirm,
+        att.description,
+        att.icon,
+        att.tag,
+        att.organization_scope,
+        att.status_scope,
+        att.specialty_scope,
+        att.special_asset_flag,
+        att.special_asset,
+        att.check_target_org_flag,
+        att.check_current_org_flag,
+        att.cross_legal_flag,
+        att.status_update_flag,
+        att.target_asset_status_id,
+        att.inprocess_asset_status_id,
+        att.target_asset_status_scope,
+        att.enabled_flag,
+        att.basic_column_flag,
+        att.attribute_column_flag,
+        att.tracking_flag,
+        att.tenant_id,
+        att.object_version_number,
+        att.created_by,
+        att.creation_date,
+        att.last_updated_by,
+        att.last_update_date
+        FROM aafm_transaction_types att
+        WHERE 1=1
+        <if test="onlyEnabledFlag == 1">
+            AND att.enabled_flag = #{onlyEnabledFlag}
+        </if>
+        AND EXISTS (
+        SELECT
+        1
+        FROM
+        aafm_transaction_types t1
+        WHERE 1 = 1
+        AND t1.tenant_id = #{tenantId}
+        <if test="levelNumber != null">
+            AND t1.level_number = #{levelNumber}
+        </if>
+        <if test="transactionTypeCode != null and transactionTypeCode!=''">
+            <bind name="transactionTypeCodeLike" value="'%'+transactionTypeCode+'%'"/>
+            AND t1.transaction_type_code like #{transactionTypeCodeLike}
+        </if>
+        <if test="basicTypeCode != null">
+            AND t1.basic_type_code = #{basicTypeCode}
+        </if>
+        <if test="shortName != null and shortName!=''">
+            <bind name="shortNameLike" value="'%'+shortName+'%'"/>
+            AND t1.short_name like #{shortNameLike}
+        </if>
+        <if test="longName != null and longName!=''">
+            <bind name="longNameLike" value="'%'+longName+'%'"/>
+            AND t1.long_name like #{longNameLike}
+        </if>
+        <if test="onlyEnabledFlag == 1">
+            AND t1.enabled_flag = #{onlyEnabledFlag}
+        </if>
+        AND (
+        t1.level_path LIKE CONCAT(
+        CONCAT('%/', att.transaction_type_id),
+        '/%'
+        )
+        OR t1.level_path LIKE CONCAT('%/', att.transaction_type_id)
+        OR t1.level_path LIKE CONCAT(att.transaction_type_id, '/%')
+        OR t1.level_path = CONCAT('/',att.transaction_type_id)
+        OR att.transaction_type_id = t1.transaction_type_id
+        OR att.level_path = CONCAT('/',t1.transaction_type_id)
+        OR (att.level_path LIKE CONCAT(t1.level_path, '%')
+            AND t1.level_path <![CDATA[ <> ]]> ''
+            )
+        )
+        )
+    </select>
+
+    <select id="getTransactionTypes" resultType="org.hzero.halm.afm.domain.entity.TransactionTypes">
+        SELECT
+        <include refid="select_field"/>
+        att.transaction_type_id,
+        att.basic_type_code,
+        att.transaction_type_code,
+        att.short_name,
+        att.long_name,
+        att.parent_type_id,
+        patt.short_name parent_type_name,
+        att.level_path,
+        att.level_number,
+        att.code_rule,
+        att.need_twice_confirm,
+        att.description,
+        att.icon,
+        att.tag,
+        att.organization_scope,
+        att.status_scope,
+        att.specialty_scope,
+        att.special_asset_flag,
+        att.special_asset,
+        att.check_target_org_flag,
+        att.check_current_org_flag,
+        att.cross_legal_flag,
+        att.status_update_flag,
+        att.target_asset_status_id,
+        att.inprocess_asset_status_id,
+        att.target_asset_status_scope,
+        att.enabled_flag,
+        att.basic_column_flag,
+        att.attribute_column_flag,
+        att.tracking_flag,
+        att.tenant_id,
+        att.object_version_number,
+        att.created_by,
+        att.creation_date,
+        att.last_updated_by,
+        att.last_update_date
+        FROM aafm_transaction_types att
+        <include refid="rel_table"/>
+        LEFT JOIN aafm_transaction_types patt
+        ON (patt.transaction_type_id = att.parent_type_id)
+        WHERE att.tenant_id = #{tenantId}
+        AND att.transaction_type_id = #{transactionTypeId}
+    </select>
+
+    <select id="selectNodeAndChildNodeTransactionTypes" resultType="org.hzero.halm.afm.domain.entity.TransactionTypes">
+        SELECT att.transaction_type_id,
+        att.basic_type_code,
+        att.transaction_type_code,
+        att.short_name,
+        att.long_name,
+        att.parent_type_id,
+        att.level_path,
+        att.level_number,
+        att.code_rule,
+        att.need_twice_confirm,
+        att.description,
+        att.icon,
+        att.tag,
+        att.organization_scope,
+        att.status_scope,
+        att.specialty_scope,
+        att.special_asset_flag,
+        att.special_asset,
+        att.check_target_org_flag,
+        att.check_current_org_flag,
+        att.cross_legal_flag,
+        att.status_update_flag,
+        att.target_asset_status_id,
+        att.inprocess_asset_status_id,
+        att.target_asset_status_scope,
+        att.enabled_flag,
+        att.basic_column_flag,
+        att.attribute_column_flag,
+        att.tracking_flag,
+        att.tenant_id,
+        att.object_version_number,
+        att.created_by,
+        att.creation_date,
+        att.last_updated_by,
+        att.last_update_date
+        FROM aafm_transaction_types att
+        WHERE 1 = 1
+        <if test="tenantId != null">
+            AND att.tenant_id = #{tenantId}
+        </if>
+        AND (
+        att.level_path LIKE CONCAT(CONCAT('%/', #{transactionTypeId}),'/%')
+        OR att.level_path LIKE CONCAT('%/', #{transactionTypeId})
+        OR att.transaction_type_id = #{transactionTypeId}
+        )
+    </select>
+
+    <select id="exportTransactionTypes" resultType="org.hzero.halm.afm.api.dto.TransactionTypesDTO">
+        SELECT
+        <include refid="select_field"/>
+        att.transaction_type_id,
+        att.basic_type_code,
+        att.transaction_type_code,
+        att.short_name,
+        att.long_name,
+        att.parent_type_id,
+        patt.short_name parent_type_name,
+        att.level_path,
+        att.level_number,
+        att.code_rule,
+        att.need_twice_confirm,
+        att.description,
+        att.icon,
+        att.tag,
+        att.organization_scope,
+        att.status_scope,
+        att.specialty_scope,
+        att.special_asset_flag,
+        att.special_asset,
+        att.check_target_org_flag,
+        att.check_current_org_flag,
+        att.cross_legal_flag,
+        att.status_update_flag,
+        att.target_asset_status_id,
+        att.inprocess_asset_status_id,
+        att.target_asset_status_scope,
+        att.enabled_flag,
+        att.basic_column_flag,
+        att.attribute_column_flag,
+        att.tracking_flag,
+        att.tenant_id,
+        att.object_version_number,
+        att.created_by,
+        att.creation_date,
+        att.last_updated_by,
+        att.last_update_date
+        FROM aafm_transaction_types att
+        <include refid="rel_table"/>
+        LEFT JOIN aafm_transaction_types patt
+        ON (patt.transaction_type_id = att.parent_type_id)
+        WHERE att.tenant_id = #{tenantId}
+    </select>
+
+    <select id="listTransactionTypes" resultType="org.hzero.halm.afm.api.dto.TransactionTypesDTO">
+        SELECT
+        <include refid="select_field"/>
+        att.transaction_type_id,
+        att.basic_type_code,
+        att.transaction_type_code,
+        att.short_name,
+        att.long_name,
+        att.parent_type_id,
+        patt.short_name parent_type_name,
+        att.level_path,
+        att.level_number,
+        att.code_rule,
+        att.need_twice_confirm,
+        att.description,
+        att.icon,
+        att.tag,
+        att.organization_scope,
+        att.status_scope,
+        att.specialty_scope,
+        att.special_asset_flag,
+        att.special_asset,
+        att.check_target_org_flag,
+        att.check_current_org_flag,
+        att.cross_legal_flag,
+        att.status_update_flag,
+        att.target_asset_status_id,
+        att.inprocess_asset_status_id,
+        att.target_asset_status_scope,
+        att.enabled_flag,
+        att.basic_column_flag,
+        att.attribute_column_flag,
+        att.tracking_flag,
+        att.tenant_id,
+        att.object_version_number,
+        att.created_by,
+        att.creation_date,
+        att.last_updated_by,
+        att.last_update_date
+        FROM aafm_transaction_types att
+        <include refid="rel_table"/>
+        LEFT JOIN aafm_transaction_types patt
+        ON (patt.transaction_type_id = att.parent_type_id)
+        WHERE att.tenant_id = #{tenantId}
+        <if test="detailSelectItem != null and detailSelectItem != ''">
+            <bind name="detailSelectItemLike" value="'%'+detailSelectItem+'%'" />
+            AND (att.short_name like #{detailSelectItemLike}
+            OR att.long_name like #{detailSelectItemLike}
+            )
+        </if>
+        <if test="transactionTypeCode != null and transactionTypeCode!=''">
+            <bind name="transactionTypeCodeLike" value="'%'+transactionTypeCode+'%'"/>
+            AND att.transaction_type_code like #{transactionTypeCodeLike}
+        </if>
+        <if test="basicTypeCode != null">
+            AND att.basic_type_code = #{basicTypeCode}
+        </if>
+        <if test="shortName != null and shortName!=''">
+            <bind name="shortNameLike" value="'%'+shortName+'%'"/>
+            AND att.short_name like #{shortNameLike}
+        </if>
+        <if test="longName != null and longName!=''">
+            <bind name="longNameLike" value="'%'+longName+'%'"/>
+            AND att.long_name like #{longNameLike}
+        </if>
+    </select>
+
+</mapper>

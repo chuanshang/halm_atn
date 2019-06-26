@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.afm.infra.mapper.AssetStatusMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.afm.domain.entity.AssetStatus">
+        <result column="asset_status_id" property="assetStatusId" jdbcType="DECIMAL"/>
+        <result column="sys_status_name" property="sysStatusName" jdbcType="VARCHAR"/>
+        <result column="user_status_name" property="userStatusName" jdbcType="VARCHAR"/>
+        <result column="initial_status_flag" property="initialStatusFlag" jdbcType="DECIMAL"/>
+        <result column="maintain_flag" property="maintainFlag" jdbcType="DECIMAL"/>
+        <result column="transaction_flag" property="transactionFlag" jdbcType="DECIMAL"/>
+        <result column="edit_basic_flag" property="editBasicFlag" jdbcType="DECIMAL"/>
+        <result column="edit_source_flag" property="editSourceFlag" jdbcType="DECIMAL"/>
+        <result column="edit_manage_flag" property="editManageFlag" jdbcType="DECIMAL"/>
+        <result column="edit_attribute_flag" property="editAttributeFlag" jdbcType="DECIMAL"/>
+        <result column="edit_warranty_flag" property="editWarrantyFlag" jdbcType="DECIMAL"/>
+        <result column="pm_start_trigger_flag_flag" property="pmStartTriggerFlagFlag" jdbcType="DECIMAL"/>
+        <result column="pm_stop_trigger_flag" property="pmStopTriggerFlagFlag" jdbcType="DECIMAL"/>
+        <result column="next_status" property="nextStatus" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="asset_status_code" property="assetStatusCode" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+</mapper>

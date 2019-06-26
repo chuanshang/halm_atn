@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.atn.infra.mapper.TransferOrderHeaderMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.atn.domain.entity.TransferOrderHeader">
+        <result column="transfer_header_id" property="transferHeaderId" jdbcType="DECIMAL"/>
+        <result column="transaction_type_id" property="transactionTypeId" jdbcType="DECIMAL"/>
+        <result column="process_status" property="processStatus" jdbcType="VARCHAR"/>
+        <result column="principal_person_id" property="principalPersonId" jdbcType="DECIMAL"/>
+        <result column="transfer_num" property="transferNum" jdbcType="VARCHAR"/>
+        <result column="title_overview" property="titleOverview" jdbcType="VARCHAR"/>
+        <result column="plan_start_date" property="planStartDate" jdbcType="DATE"/>
+        <result column="plan_end_date" property="planEndDate" jdbcType="DATE"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <select id="selectTransferOrderHeader" resultType="org.hzero.halm.atn.domain.entity.TransferOrderHeader">
+        SELECT
+          atoh.transfer_header_id,
+          atoh.transfer_num,
+          atoh.title_overview,
+          atoh.transaction_type_id,
+          att.short_name transaction_name,
+          atoh.process_status,
+          atoh.principal_person_id,
+          he.name principal_person_name,
+          atoh.plan_start_date,
+          atoh.plan_end_date,
+          atoh.description,
+          atoh.tenant_id,
+          atoh.object_version_number
+        FROM aatn_transfer_order_header atoh
+        LEFT JOIN aafm_transaction_types att ON atoh.transaction_type_id = att.transaction_type_id
+        LEFT JOIN hpfm_employee he ON atoh.principal_person_id = he.employee_id
+        <where>
+          <if test="transferHeaderId != null">
+              AND atoh.transfer_header_id = #{transferHeaderId}
+          </if>
+          <if test="transactionTypeId != null">
+              AND atoh.transaction_type_id = #{transactionTypeId}
+          </if>
+          <if test="principalPersonId != null">
+              AND atoh.principal_person_id = #{principalPersonId}
+          </if>
+          <if test="processStatus != null and processStatus != ''">
+              AND atoh.process_status = #{processStatus}
+          </if>
+          <if test="transferNum != null and transferNum != ''">
+              <bind name="transferNumLike" value="'%'+transferNum+'%'"/>
+              AND atoh.transfer_num LIKE #{transferNumLike}
+          </if>
+          <if test="titleOverview != null and titleOverview != ''">
+              <bind name="titleOverviewLike" value="'%'+titleOverview+'%'"/>
+              AND atoh.title_overview LIKE #{titleOverviewLike}
+          </if>
+          <if test="planStartDateFrom != null">
+              AND atoh.plan_start_date &gt;= #{planStartDateFrom}
+          </if>
+          <if test="planStartDateTo != null">
+              AND atoh.plan_start_date &lt;= #{planStartDateTo}
+          </if>
+          <if test="planEndDateFrom != null">
+              AND atoh.plan_end_date &gt;= #{planEndDateFrom}
+          </if>
+          <if test="planStartDateTo != null">
+              AND atoh.plan_end_date &lt;= #{planStartDateTo}
+          </if>
+          <if test="condition != null and condition != ''">
+              <bind name="conditionLike" value="'%'+condition+'%'" />
+              AND (atoh.title_overview LIKE #{conditionLike} OR atoh.transfer_num LIKE #{conditionLike} OR att.short_name LIKE #{conditionLike} OR att.long_name LIKE #{conditionLike}
+              <if test="processStatusCodeList != null and processStatusCodeList.size() > 0">
+                  OR atoh.process_status IN
+                  <foreach collection="processStatusCodeList" separator="," open="(" close=")" item="code">
+                      #{code}
+                  </foreach>
+              </if>
+              )
+          </if>
+          <if test="tenantId != null">
+              AND atoh.tenant_id = #{tenantId}
+          </if>
+            <if test="transferHeaderIds != null and transferHeaderIds.length > 0">
+                AND atoh.transfer_header_id IN
+                <foreach collection="transferHeaderIds" separator="," item="id" close=")" open="(">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

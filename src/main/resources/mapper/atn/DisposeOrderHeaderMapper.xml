@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.atn.infra.mapper.DisposeOrderHeaderMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.atn.domain.entity.DisposeOrderHeader">
+        <result column="dispose_header_id" property="disposeHeaderId" jdbcType="DECIMAL"/>
+        <result column="transaction_type_id" property="transactionTypeId" jdbcType="DECIMAL"/>
+        <result column="process_status" property="processStatus" jdbcType="VARCHAR"/>
+        <result column="principal_person_id" property="principalPersonId" jdbcType="DECIMAL"/>
+        <result column="dispose_num" property="disposeNum" jdbcType="VARCHAR"/>
+        <result column="title_overview" property="titleOverview" jdbcType="VARCHAR"/>
+        <result column="plan_start_date" property="planStartDate" jdbcType="DATE"/>
+        <result column="plan_end_date" property="planEndDate" jdbcType="DATE"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <select id="pageDisposeOrderHeaderList" parameterType="org.hzero.halm.atn.domain.entity.DisposeOrderHeader" resultType="org.hzero.halm.atn.domain.entity.DisposeOrderHeader">
+      SELECT
+        adoh.dispose_header_id,
+        adoh.transaction_type_id,
+        adoh.process_status,
+        adoh.dispose_num,
+        adoh.principal_person_id,
+        hec.name principalPersonName,
+        adoh.plan_start_date,
+        adoh.plan_end_date,
+        adoh.description,
+        adoh.tenant_id,
+        att.short_name transactionTypeMeaning,
+        att.transaction_type_code transactionTypeCode,
+        adoh.title_overview,
+        adoh.object_version_number
+       FROM aatn_dispose_order_header adoh
+       LEFT JOIN aafm_transaction_types att ON adoh.transaction_type_id = att.transaction_type_id
+       LEFT JOIN hpfm_employee hec ON hec.employee_id = adoh.principal_person_id
+       <where>
+           <if test="tenantId != null">
+            AND adoh.tenant_id = #{tenantId}
+           </if>
+           <if test="disposeHeaderId != null">
+               AND adoh.dispose_header_id = #{disposeHeaderId}
+           </if>
+           <if test="transactionTypeId!=null">
+               AND adoh.transaction_type_id = #{transactionTypeId}
+           </if>
+           <if test="processStatus!=null and processStatus!=''">
+               AND adoh.process_status = #{processStatus}
+           </if>
+           <if test="principalPersonId!=null">
+               AND adoh.principal_person_id = #{principalPersonId}
+           </if>
+           <if test="disposeNum!=null and disposeNum!=''">
+               <bind name="disposeNumLike" value="'%'+disposeNum+'%'"/>
+               AND adoh.dispose_num LIKE #{disposeNumLike}
+           </if>
+           <if test="titleOverview!=null and titleOverview!=''">
+               <bind name="titleOverviewLike" value="'%'+titleOverview+'%'"/>
+               AND adoh.title_overview LIKE #{titleOverviewLike}
+           </if>
+           <if test="planStartDateFrom != null and planStartDateFrom != ''">
+               AND adoh.plan_start_date &gt;= #{planStartDateFrom}
+           </if>
+           <if test="planStartDateTo != null and planStartDateTo != ''">
+               AND adoh.plan_start_date &lt;= #{planStartDateTo}
+           </if>
+           <if test="planEndDateFrom != null and planEndDateFrom != ''">
+               AND adoh.plan_end_date &gt;= #{planEndDateFrom}
+           </if>
+           <if test="planEndDateTo != null and planEndDateTo != ''">
+               AND adoh.plan_end_date &lt;= #{planEndDateTo}
+           </if>
+           <if test="condition!=null and condition!=''">
+               <bind name="detailConditionLike" value="'%'+condition+'%'"/>
+               AND (
+               adoh.title_overview LIKE #{detailConditionLike}
+               OR att.short_name LIKE #{detailConditionLike}
+               OR att.long_name LIKE #{detailConditionLike}
+               OR adoh.dispose_num LIKE #{detailConditionLike}
+               <if test="processStatusCodeList != null and processStatusCodeList.size() > 0">
+                   OR adoh.process_status IN
+                   <foreach collection="processStatusCodeList" separator="," open="(" close=")" item="code">
+                       #{code}
+                   </foreach>
+               </if>
+               )
+           </if>
+       </where>
+
+    </select>
+    <select id="getLineById" resultType="org.hzero.halm.atn.domain.entity.DisposeOrderHeader">
+        SELECT
+        adoh.dispose_header_id,
+        adoh.transaction_type_id,
+        adoh.process_status,
+        adoh.dispose_num,
+        adoh.principal_person_id,
+        adoh.plan_start_date,
+        adoh.plan_end_date,
+        adoh.description,
+        adoh.tenant_id,
+        adoh.title_overview,
+        adoh.object_version_number
+        FROM aatn_dispose_order_header adoh
+        <where>
+            <if test="tenantId != null">
+                AND adoh.tenant_id = #{tenantId}
+            </if>
+            <if test="disposeHeaderId != null">
+                AND adoh.dispose_header_id = #{disposeHeaderId}
+            </if>
+        </where>
+    </select>
+    <select id="selectListByCondition" resultType="org.hzero.halm.atn.domain.entity.DisposeOrderHeader">
+    SELECT
+        adoh.dispose_header_id,
+        adoh.transaction_type_id,
+        adoh.process_status,
+        adoh.dispose_num,
+        adoh.principal_person_id,
+        adoh.plan_start_date,
+        adoh.plan_end_date,
+        adoh.description,
+        adoh.tenant_id,
+        adoh.title_overview
+    FROM aatn_dispose_order_header adoh
+    <where>
+        <if test="tenantId != null">
+            AND adoh.tenant_id = #{tenantId}
+        </if>
+        <if test="disposeHeaderId != null">
+            AND adoh.dispose_header_id = #{disposeHeaderId}
+        </if>
+        <if test="condition !=null and condition != ''">
+            <bind name="conditionLike" value="'%'+condition+'%'"/>
+            AND (adoh.title_overview like #{conditionLike}
+            OR adoh.dispose_num like #{conditionLike}
+            )
+        </if>
+    </where>
+    </select>
+    <select id="getDisposeOrderHeader" parameterType="org.hzero.halm.atn.domain.entity.DisposeOrderHeader" resultType="org.hzero.halm.atn.domain.entity.DisposeOrderHeader">
+        SELECT
+        adoh.dispose_header_id,
+        adoh.transaction_type_id,
+        adoh.process_status,
+        adoh.dispose_num,
+        adoh.principal_person_id,
+        hec.name principalPersonName,
+        adoh.plan_start_date,
+        adoh.plan_end_date,
+        adoh.description,
+        adoh.tenant_id,
+        att.short_name transactionTypeMeaning,
+        att.transaction_type_code transactionTypeCode,
+        adoh.title_overview,
+        adoh.object_version_number
+        FROM aatn_dispose_order_header adoh
+        LEFT JOIN aafm_transaction_types att ON adoh.transaction_type_id = att.transaction_type_id
+        LEFT JOIN hpfm_employee hec ON hec.employee_id = adoh.principal_person_id
+        <where>
+        <if test="disposeHeaderId != null">
+            AND adoh.dispose_header_id = #{disposeHeaderId}
+        </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.atn.infra.mapper.ScrapOrderHeaderMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.atn.domain.entity.ScrapOrderHeader">
+        <result column="scrap_header_id" property="scrapHeaderId" jdbcType="DECIMAL"/>
+        <result column="transaction_type_id" property="transactionTypeId" jdbcType="DECIMAL"/>
+        <result column="process_status" property="processStatus" jdbcType="VARCHAR"/>
+        <result column="principal_person_id" property="principalPersonId" jdbcType="DECIMAL"/>
+        <result column="scrap_num" property="scrapNum" jdbcType="VARCHAR"/>
+        <result column="title_overview" property="titleOverview" jdbcType="VARCHAR"/>
+        <result column="plan_start_date" property="planStartDate" jdbcType="DATE"/>
+        <result column="plan_end_date" property="planEndDate" jdbcType="DATE"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <select id="selectScrapOrderHeader" resultType="org.hzero.halm.atn.domain.entity.ScrapOrderHeader">
+        SELECT
+            soh.scrap_header_id,
+            soh.transaction_type_id,
+            att.short_name transaction_type_meaning,
+            soh.process_status,
+            soh.principal_person_id,
+            he.NAME principal_person_name,
+            soh.scrap_num,
+            soh.title_overview,
+            soh.plan_start_date,
+            soh.plan_end_date,
+            soh.description,
+            soh.tenant_id,
+            soh.object_version_number,
+            soh.creation_date,
+            soh.created_by,
+            soh.last_updated_by,
+            soh.last_update_date
+        FROM
+            aatn_scrap_order_header soh
+            LEFT JOIN aafm_transaction_types att ON ( att.transaction_type_id = soh.transaction_type_id )
+            LEFT JOIN hpfm_employee he ON soh.principal_person_id = he.employee_id
+        WHERE
+            1 =1
+        AND soh.tenant_id = #{tenantId}
+        <if test="scrapHeaderId != null">
+            AND soh.scrap_header_id = #{scrapHeaderId}
+        </if>
+        <if test="transactionTypeId != null">
+            AND soh.transaction_type_id = #{transactionTypeId}
+        </if>
+        <if test="processStatus != null">
+            AND soh.process_status = #{processStatus}
+        </if>
+        <if test="principalPersonId != null">
+            AND soh.principal_person_id = #{principalPersonId}
+        </if>
+        <if test="scrapNum != null">
+            AND soh.scrap_num = #{scrapNum}
+        </if>
+        <if test="titleOverview != null">
+            AND soh.title_overview = #{titleOverview}
+        </if>
+        <if test="planStartDateFrom != null">
+            AND soh.plan_start_date &gt;= #{planStartDateFrom}
+        </if>
+        <if test="planStartDateTo != null">
+            AND soh.plan_start_date &lt;= #{planStartDateTo}
+        </if>
+        <if test="planEndDateFrom != null">
+            AND soh.plan_end_date &gt;= #{planEndDateFrom}
+        </if>
+        <if test="planStartDateTo != null">
+            AND soh.plan_end_date &lt;= #{planStartDateTo}
+        </if>
+        <if test="description != null">
+            AND soh.description = #{description}
+        </if>
+    </select>
+    <select id="selectScrapOrderHeaderByContent" resultType="org.hzero.halm.atn.domain.entity.ScrapOrderHeader">
+        SELECT
+        soh.scrap_header_id,
+        soh.transaction_type_id,
+        att.short_name transaction_type_meaning,
+        soh.process_status,
+        soh.principal_person_id,
+        he.NAME principal_person_name,
+        soh.scrap_num,
+        soh.title_overview,
+        soh.plan_start_date,
+        soh.plan_end_date,
+        soh.description,
+        soh.tenant_id,
+        soh.object_version_number,
+        soh.creation_date,
+        soh.created_by,
+        soh.last_updated_by,
+        soh.last_update_date
+        FROM
+        aatn_scrap_order_header soh
+        LEFT JOIN aafm_transaction_types att ON ( att.transaction_type_id = soh.transaction_type_id )
+        LEFT JOIN hpfm_employee he ON soh.principal_person_id = he.employee_id
+        WHERE
+        1 =1
+        AND soh.tenant_id = #{tenantId}
+        <if test="content != null">
+            <bind name="contentLike" value="'%'+content+'%'"/>
+            AND (soh.title_overview LIKE #{contentLike}
+              OR soh.scrap_num LIKE #{contentLike}
+              OR att.short_name LIKE #{contentLike}
+              OR soh.process_status LIKE #{contentLike}
+            )
+        </if>
+    </select>
+</mapper>

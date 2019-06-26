@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.afm.infra.mapper.AttributeLineMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.afm.domain.entity.AttributeLine">
+        <result column="line_id" property="lineId" jdbcType="DECIMAL"/>
+        <result column="attribute_set_id" property="attributeSetId" jdbcType="DECIMAL"/>
+        <result column="line_num" property="lineNum" jdbcType="DECIMAL"/>
+        <result column="attribute_name" property="attributeName" jdbcType="VARCHAR"/>
+        <result column="required_flag" property="requiredFlag" jdbcType="DECIMAL"/>
+        <result column="attribute_type" property="attributeType" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="uom_id" property="uomId" jdbcType="DECIMAL"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="lov_value" property="lovValue" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="exportAttributeLineBySetId" parameterType="java.lang.String" resultType="org.hzero.halm.afm.domain.vo.AttributeLineDetailExportVO">
+        SELECT aal.line_id,
+        aal.attribute_set_id,
+        aal.line_num,
+        aal.attribute_name,
+        aal.required_flag,
+        aal.attribute_type,
+        aal.enabled_flag,
+        aal.uom_id,
+        hu.uom_name,
+        aal.description,
+        aal.lov_value
+        FROM aafm_attribute_line aal
+        LEFT JOIN hpfm_uom hu ON aal.uom_id = hu.uom_id
+        <where>
+            <if test="attributeSetIdList != null and attributeSetIdList.size() > 0">
+                aal.attribute_set_id IN
+                <foreach item="setId" collection="attributeSetIdList" separator="," open="(" close=")">
+                    #{setId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectBySetId" parameterType="java.lang.Long" resultType="org.hzero.halm.afm.domain.entity.AttributeLine">
+        SELECT aal.attribute_name,
+        aal.attribute_set_id,
+        aal.attribute_type,
+        aal.description,
+        aal.enabled_flag,
+        aal.required_flag,
+        aal.line_id,
+        aal.line_num,
+        aal.lov_value,
+        aal.object_version_number,
+        aal.tenant_id,
+        aal.created_by,
+        aal.creation_date,
+        aal.last_updated_by,
+        aal.last_update_date,
+        aal.uom_id,
+        hu.uom_name
+        FROM aafm_attribute_line aal
+        LEFT JOIN hpfm_uom hu ON aal.uom_id = hu.uom_id
+        <where>
+            <if test="attrSetId != null">
+                aal.attribute_set_id = #{attrSetId}
+            </if>
+        </where>
+        ORDER BY aal.line_num
+    </select>
+
+</mapper>

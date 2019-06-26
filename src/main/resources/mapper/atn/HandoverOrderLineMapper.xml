@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.atn.infra.mapper.HandoverOrderLineMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.atn.domain.entity.HandoverOrderLine">
+        <result column="handover_line_id" property="handoverLineId" jdbcType="DECIMAL"/>
+        <result column="handover_header_id" property="handoverHeaderId" jdbcType="DECIMAL"/>
+        <result column="line_num" property="lineNum" jdbcType="DECIMAL"/>
+        <result column="asset_id" property="assetId" jdbcType="DECIMAL"/>
+        <result column="process_status" property="processStatus" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+
+        <result column="asset_desc" property="assetDesc" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="headerStatus" property="headerStatus" jdbcType="VARCHAR"/>
+        <result column="assets_set_name" property="assetsSetName" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <select id="selectLineList" resultMap="BaseResultMap">
+        SELECT
+            hol.handover_line_id,
+            hol.handover_header_id,
+            hol.line_num,
+            hol.asset_id,
+            hol.process_status,
+            hol.description,
+            hol.tenant_id,
+            hol.object_version_number,
+            hol.creation_date,
+            hol.created_by,
+            hol.last_updated_by,
+            hol.last_update_date,
+
+            aa.asset_desc,
+            aa.name
+            FROM
+            aatn_handover_order_line hol
+            LEFT JOIN aafm_asset aa ON hol.asset_id = aa.asset_id
+        <where>
+            and hol.tenant_id = #{tenantId}
+            and hol.handover_header_id = #{handoverHeaderId}
+        </where>
+
+
+    </select>
+
+    <select id="selectMaxNum" resultType="java.lang.Long">
+        SELECT
+            MAX(line_num)
+        FROM
+            aatn_handover_order_line
+        WHERE
+            tenant_id = #{tenantId}
+            and handover_header_id = #{handoverHeaderId}
+    </select>
+
+    <select id="selectLineAndHeader" resultMap="BaseResultMap">
+        SELECT
+            line.handover_line_id,
+            line.handover_header_id,
+            line.line_num,
+            line.asset_id,
+            line.process_status,
+            line.description,
+            line.tenant_id,
+            line.object_version_number,
+            header.handover_header_id,
+            header.transaction_type_id,
+            header.process_status headerStatus,
+            header.handover_num,
+            asset.name
+        FROM
+            aatn_handover_order_line line
+            LEFT JOIN aatn_handover_order_header header ON header.handover_header_id = line.handover_header_id
+            left join aafm_asset asset on asset.asset_id = line.asset_id
+
+            <where>
+                    and line.tenant_id = #{tenantId}
+                <if test="transactionTypeId!=null">
+                    and header.transaction_type_id = #{transactionTypeId}
+                </if>
+
+                <if test="headerStatus!=null and headerStatus != ''">
+                    and header.process_status = #{headerStatus}
+                </if>
+
+                <if test="principalPersonId!=null">
+                    and header.transactionTypeId = #{principalPersonId}
+                </if>
+                <if test="handoverNum!=null and handoverNum!=''">
+                    and header.handover_num = #{handoverNum}
+                </if>
+
+                <if test="titleOverview!=null and titleOverview!=''">
+                    <bind name="titleOverviewLike" value="'%'+titleOverview+'%'"/>
+                    and header.title_overview = #{titleOverviewLike}
+                </if>
+
+                <if test="planStartDateFrom!=null">
+                    and header.plan_start_date &gt;= #{planStartDateFrom}
+                </if>
+                <if test="planStartDateTo!=null">
+                    and header.plan_start_date &lt;= #{planStartDateTo}
+                </if>
+                <if test="planEndDateFrom!=null">
+                    and header.plan_end_date &gt;= #{planEndDateFrom}
+                </if>
+                <if test="planEndDateTo!=null">
+                    and header.plan_end_date &lt;= #{planEndDateTo}
+                </if>
+                <if test="assetId!=null">
+                    and line.asset_id = #{assetId}
+                </if>
+                <if test="processStatus!=null and processStatus!=''">
+                    and line.process_status = #{processStatus}
+                </if>
+            </where>
+    </select>
+
+
+</mapper>

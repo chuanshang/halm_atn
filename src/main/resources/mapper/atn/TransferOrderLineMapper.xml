@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.atn.infra.mapper.TransferOrderLineMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.atn.domain.entity.TransferOrderLine">
+        <result column="transfer_line_id" property="transferLineId" jdbcType="DECIMAL"/>
+        <result column="transfer_header_id" property="transferHeaderId" jdbcType="DECIMAL"/>
+        <result column="asset_id" property="assetId" jdbcType="DECIMAL"/>
+        <result column="process_status" property="processStatus" jdbcType="VARCHAR"/>
+        <result column="current_asset_status_id" property="currentAssetStatusId" jdbcType="DECIMAL"/>
+        <result column="target_asset_status_id" property="targetAssetStatusId" jdbcType="DECIMAL"/>
+        <result column="current_owning_org" property="currentOwningOrg" jdbcType="DECIMAL"/>
+        <result column="target_owning_org" property="targetOwningOrg" jdbcType="DECIMAL"/>
+        <result column="current_cost_center" property="currentCostCenter" jdbcType="VARCHAR"/>
+        <result column="target_cost_center" property="targetCostCenter" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <select id="selectTransferOrderLine" resultType="org.hzero.halm.atn.domain.entity.TransferOrderLine">
+        SELECT
+          atol.tenant_id,
+          atol.object_version_number,
+          atol.transfer_header_id,
+          atol.transfer_line_id,
+          atoh.transfer_num,
+          atol.asset_id,
+          aa.asset_num,
+          aa.asset_desc,
+          aa.name,
+          att.transaction_type_id,
+          atol.process_status,
+          atol.current_asset_status_id,
+          CASE WHEN aasc.user_status_name IS NULL
+          THEN aasc.sys_status_name
+          ELSE aasc.user_status_name
+          END AS current_asset_status_name,
+          atol.target_asset_status_id,
+          CASE WHEN aast.user_status_name IS NULL
+          THEN aast.sys_status_name
+          ELSE aast.user_status_name
+          END AS target_asset_status_name,
+          atol.current_owning_org,
+          aoc.org_name current_owning_org_name,
+          atol.target_owning_org,
+          aot.org_name target_owning_org_name,
+          atol.current_cost_center,
+          atol.target_cost_center,
+          atol.description,
+          CASE WHEN aasi.user_status_name IS NULL
+          THEN aasi.sys_status_name
+          ELSE aasi.user_status_name
+          END AS inprocess_asset_status,
+          att.inprocess_asset_status_id
+        FROM aatn_transfer_order_line atol
+        JOIN aatn_transfer_order_header atoh ON atol.transfer_header_id = atoh.transfer_header_id
+        LEFT JOIN aafm_asset aa ON atol.asset_id = aa.asset_id
+        LEFT JOIN aafm_asset_status aasc ON atol.current_asset_status_id = aasc.asset_status_id
+        LEFT JOIN aafm_asset_status aast ON atol.target_asset_status_id = aast.asset_status_id
+        LEFT JOIN aafm_transaction_types att ON atoh.transaction_type_id = att.transaction_type_id
+        LEFT JOIN aafm_asset_status aasi ON att.inprocess_asset_status_id = aasi.asset_status_id
+        LEFT JOIN amdm_organization aoc ON aoc.org_id = atol.current_owning_org
+        LEFT JOIN amdm_organization aot ON aot.org_id = atol.target_owning_org
+        <where>
+            <if test="tenantId != null">
+                AND atol.tenant_id = #{tenantId}
+            </if>
+            <if test="transferLineId != null">
+                AND atol.transfer_line_id = #{transferLineId}
+            </if>
+            <if test="transferHeaderId != null">
+                AND atol.transfer_header_id = #{transferHeaderId}
+            </if>
+            <if test="assetId != null">
+                AND atol.asset_id = #{assetId}
+            </if>
+            <if test="lineProcessStatus != null">
+                AND atol.process_status = #{lineProcessStatus}
+            </if>
+
+            <if test="transactionTypeId != null">
+                AND atoh.transaction_type_id = #{transactionTypeId}
+            </if>
+            <if test="principalPersonId != null">
+                AND atoh.principal_person_id = #{principalPersonId}
+            </if>
+            <if test="processStatus != null and processStatus != ''">
+                AND atoh.process_status = #{processStatus}
+            </if>
+            <if test="transferNum != null and transferNum != ''">
+                <bind name="transferNumLike" value="'%'+transferNum+'%'"/>
+                AND atoh.transfer_num LIKE #{transferNumLike}
+            </if>
+            <if test="titleOverview != null and titleOverview != ''">
+                <bind name="titleOverviewLike" value="'%'+titleOverview+'%'"/>
+                AND atoh.title_overview LIKE #{titleOverviewLike}
+            </if>
+            <if test="planStartDateFrom != null">
+                AND atoh.plan_start_date &gt;= #{planStartDateFrom}
+            </if>
+            <if test="planStartDateTo != null">
+                AND atoh.plan_start_date &lt;= #{planStartDateTo}
+            </if>
+            <if test="planEndDateFrom != null">
+                AND atoh.plan_end_date &gt;= #{planEndDateFrom}
+            </if>
+            <if test="planStartDateTo != null">
+                AND atoh.plan_end_date &lt;= #{planStartDateTo}
+            </if>
+        </where>
+    </select>
+</mapper>

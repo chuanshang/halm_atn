@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: halm-atn
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://db.hzero.org:3306/halm_atn?useUnicode=true&characterEncoding=utf-8&useSSL=false&autoReconnect=true&failOverReadOnly=false}
+    username: ${SPRING_DATASOURCE_USERNAME:hzero}
+    password: ${SPRING_DATASOURCE_PASSWORD:hzero}
+    max-active: 200
+    max-wait: 60000
+    min-idle: 10
+  kafka:
+    bootstrap-servers: ${CHOERODON_EVENT_CONSUMER_KAFKA_BOOTSTRAP_SERVERS:kafka-0:9092}
+    producer:
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    consumer:
+      group-id: halm-atn
+      auto-offset-reset: earliest
+    listener:
+      ack-mode: manual_immediate
+      poll-timeout: 3000
+  sleuth:
+    integration:
+      enabled: false
+    scheduled:
+      enabled: false
+    sampler:
+      percentage: 1.0
+  cloud:
+    stream:
+      default-binder: kafka
+      kafka:
+        binder:
+          brokers: ${SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS:kafka-0:9092}
+          zkNodes: ${SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES:zookeeper-0:2181}
+    bus:
+      enabled: true
+  redis:
+    host: ${REDIS_DEFAULT_URL:redis.hzero.org}
+    port: 6379
+    database: 1
+  http:
+    multipart:
+      maxFileSize: 10Mb
+      maxRequestSize: 100Mb
+
+feign:
+  hystrix:
+    enabled: true
+
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: ${HYSTRIX_COMMAND_TIMEOUT_IN_MILLISECONDS:90000}
+ribbon:
+  ReadTimeout: ${RIBBON_READ_TIMEOUT:60000}
+  ConnectTimeout: ${RIBBON_CONNECT_TIMEOUT:60000}
+
+mybatis:
+  mapperLocations:
+    - classpath*:/mapper/*Mapper.xml
+    - classpath*:/mapper/*/*Mapper.xml
+  configuration:
+    mapUnderscoreToCamelCase: true
+
+event:
+  store:
+    service:
+      name: event-store-service
+
+choerodon:
+  resource:
+    pattern: /v1/*
+  event:
+    consumer:
+      enabled: true
+      queue-type: kafka
+      enable-duplicate-remove: false
+      failed-validator: nothing
+      retry:
+        enabled: true
+      kafka:
+        bootstrap-servers: ${CHOERODON_EVENT_CONSUMER_KAFKA_BOOTSTRAP_SERVERS:kafka-0:9092}
+
+hzero:
+  lov:
+    sql:
+      enabled: ${HZERO_LOV_SQL_ENABLED:true}
+    value:
+      enabled: ${HZERO_LOV_VALUE_ENABLED:true}
+  cache-value:
+    enable: true
+
+logging:
+  level:
+    org.apache.ibatis: ${LOGGING_LVELE:debug}
+    io.choerodon: ${LOGGING_LVELE:debug}
+    org.hzero: ${LOGGING_LVELE:debug}

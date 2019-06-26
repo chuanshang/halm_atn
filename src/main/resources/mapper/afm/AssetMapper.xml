@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.afm.infra.mapper.AssetMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.afm.domain.entity.Asset">
+        <result column="asset_id" property="assetId" jdbcType="DECIMAL"/>
+        <result column="asset_num" property="assetNum" jdbcType="VARCHAR"/>
+        <result column="assets_set_id" property="assetsSetId" jdbcType="VARCHAR"/>
+        <result column="asset_class_id" property="assetClassId" jdbcType="VARCHAR"/>
+        <result column="asset_desc" property="assetDesc" jdbcType="VARCHAR"/>
+        <result column="special_asset_code" property="specialAssetCode" jdbcType="VARCHAR"/>
+        <result column="brand" property="brand" jdbcType="VARCHAR"/>
+        <result column="model" property="model" jdbcType="VARCHAR"/>
+        <result column="name_rule_code" property="nameRuleCode" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="serial_num" property="serialNum" jdbcType="VARCHAR"/>
+        <result column="tracking_num" property="trackingNum" jdbcType="VARCHAR"/>
+        <result column="maintain_flag" property="maintainFlag" jdbcType="DECIMAL"/>
+        <result column="asset_name" property="assetName" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="asset_icon" property="assetIcon" jdbcType="VARCHAR"/>
+        <result column="attribute_values" property="attributeValues" jdbcType="VARCHAR"/>
+        <result column="linear_name" property="linearName" jdbcType="DECIMAL"/>
+        <result column="linear_start_measure" property="linearStartMeasure" jdbcType="DECIMAL"/>
+        <result column="linear_end_measure" property="linearEndMeasure" jdbcType="DECIMAL"/>
+        <result column="linear_start_desc" property="linearStartDesc" jdbcType="VARCHAR"/>
+        <result column="linear_end_desc" property="linearEndDesc" jdbcType="VARCHAR"/>
+        <result column="car_num" property="carNum" jdbcType="VARCHAR"/>
+        <result column="vin_num" property="vinNum" jdbcType="VARCHAR"/>
+        <result column="engine_num" property="engineNum" jdbcType="VARCHAR"/>
+        <result column="asset_source_type_code" property="assetSourceTypeCode" jdbcType="DECIMAL"/>
+        <result column="asset_source_id" property="assetSourceId" jdbcType="DECIMAL"/>
+        <result column="aos_receiving_report_id" property="aosReceivingReportId" jdbcType="DECIMAL"/>
+        <result column="source_contract_id" property="sourceContractId" jdbcType="DECIMAL"/>
+        <result column="source_project_id" property="sourceProjectId" jdbcType="DECIMAL"/>
+        <result column="supplier_org_id" property="supplierOrgId" jdbcType="DECIMAL"/>
+        <result column="manufacturer_id" property="manufacturerId" jdbcType="DECIMAL"/>
+        <result column="asset_source_detail" property="assetSourceDetail" jdbcType="VARCHAR"/>
+        <result column="currency_code" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="original_cost" property="originalCost" jdbcType="DECIMAL"/>
+        <result column="received_date" property="receivedDate" jdbcType="DATE"/>
+        <result column="start_date" property="startDate" jdbcType="DATE"/>
+        <result column="warranty_type_code" property="warrantyTypeCode" jdbcType="VARCHAR"/>
+        <result column="warranty_type_rule" property="warrantyTypeRule" jdbcType="VARCHAR"/>
+        <result column="warranty_start_date" property="warrantyStartDate" jdbcType="DATE"/>
+        <result column="warranty_expire_date" property="warrantyExpireDate" jdbcType="DATE"/>
+        <result column="parent_asset_id" property="parentAssetId" jdbcType="VARCHAR"/>
+        <result column="asset_criticality" property="assetCriticality" jdbcType="VARCHAR"/>
+        <result column="asset_status_id" property="assetStatusId" jdbcType="DECIMAL"/>
+        <result column="asset_location_id" property="assetLocationId" jdbcType="DECIMAL"/>
+        <result column="asset_location_desc" property="assetLocationDesc" jdbcType="VARCHAR"/>
+        <result column="map_source" property="mapSource" jdbcType="VARCHAR"/>
+        <result column="owning_org_id" property="owningOrgId" jdbcType="VARCHAR"/>
+        <result column="owning_org_detail" property="owningOrgDetail" jdbcType="VARCHAR"/>
+        <result column="cost_center_id" property="costCenterId" jdbcType="VARCHAR"/>
+        <result column="asset_specialty_id" property="assetSpecialtyId" jdbcType="VARCHAR"/>
+        <result column="owning_person_id" property="owningPersonId" jdbcType="VARCHAR"/>
+        <result column="using_org_id" property="usingOrgId" jdbcType="VARCHAR"/>
+        <result column="using_org_detail" property="usingOrgDetail" jdbcType="VARCHAR"/>
+        <result column="user_person_id" property="userPersonId" jdbcType="VARCHAR"/>
+        <result column="warranty_notes" property="warrantyNotes" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="selectAssetList" parameterType="org.hzero.halm.afm.domain.entity.Asset"
+            resultType="org.hzero.halm.afm.domain.entity.Asset">
+        SELECT aa.aos_receiving_report_id,
+        aa.assets_set_id,
+        aas.assets_set_name,
+        aa.asset_class_id,
+        apc.product_category_name asset_class_meaning,
+        aa.asset_criticality,
+        aa.asset_desc,
+        aa.asset_icon,
+        aa.asset_id,
+        aa.asset_location_desc,
+        aa.asset_location_id,
+        asset_locations.location_name asset_location_name,
+        aa.asset_name,
+        aa.asset_num,
+        aa.asset_source_detail,
+        aa.asset_source_id,
+        aa.asset_source_type_code,
+        aa.asset_status_id,
+        asset_status.asset_status_code asset_status,
+        asset_status.sys_status_name,
+        asset_status.user_status_name,
+        asset_status.sys_status_name asset_status_name,
+        aa.attribute_values,
+        aa.brand,
+        aa.car_num,
+        aa.cost_center_id,
+        aa.created_by,
+        aa.creation_date,
+        aa.currency_code,
+        aa.description,
+        aa.engine_num,
+        aa.last_updated_by,
+        aa.last_update_date,
+        aa.maintain_flag,
+        aa.map_source,
+        aa.model,
+        aa.`name`,
+        aa.name_rule_code,
+        aa.object_version_number,
+        aa.original_cost,
+        aa.asset_specialty_id,
+        asset_specialty.asset_specialty_name,
+        aa.owning_org_id,
+        owning_org.org_name owning_org_name,
+        aa.owning_org_detail,
+        aa.owning_person_id,
+        owning_person.name owning_person_name,
+        aa.parent_asset_id,
+        parent_asset.asset_name parent_asset_name,
+        aa.received_date,
+        aa.serial_num,
+        aa.source_contract_id,
+        aa.source_project_id,
+        aa.special_asset_code,
+        aa.start_date,
+        aa.supplier_org_id,
+        supplier_org.org_name supplier_org_meaning,
+        aa.manufacturer_id,
+        manufacturer.org_name manufacturer_name,
+        aa.tenant_id,
+        aa.tracking_num,
+        aa.user_person_id,
+        user_person.name user_person_name,
+        aa.using_org_id,
+        using_org.org_name using_org_name,
+        aa.using_org_detail,
+        aa.vin_num,
+        aa.warranty_expire_date,
+        aa.warranty_start_date,
+        aa.warranty_type_code,
+        aa.warranty_type_rule,
+        aas.attribute_set_id,
+        aa.warranty_notes
+        FROM aafm_asset aa
+        LEFT JOIN aafm_product_categories apc
+        ON(apc.product_category_id=aa.asset_class_id)
+        LEFT JOIN aafm_asset_specialty asset_specialty
+        ON(aa.asset_specialty_id=asset_specialty.asset_specialty_id)
+        LEFT JOIN amdm_asset_locations asset_locations
+        ON(aa.asset_location_id=asset_locations.asset_location_id)
+        LEFT JOIN amdm_organization using_org
+        ON(aa.using_org_id=using_org.org_id)
+        LEFT JOIN amdm_organization owning_org
+        ON(aa.owning_org_id=owning_org.org_id)
+        LEFT JOIN amdm_organization supplier_org
+        ON(aa.supplier_org_id=supplier_org.org_id)
+        LEFT JOIN amdm_organization manufacturer
+        ON(aa.manufacturer_id=manufacturer.org_id)
+        LEFT JOIN aafm_asset_status asset_status
+        ON(asset_status.asset_status_id=aa.asset_status_id)
+        LEFT JOIN hpfm_employee owning_person
+        ON(owning_person.employee_id=aa.owning_person_id)
+        LEFT JOIN hpfm_employee user_person
+        ON(user_person.employee_id=aa.user_person_id)
+        LEFT JOIN aafm_asset parent_asset
+        ON(parent_asset.asset_id=aa.parent_asset_id),
+        aafm_assets_set aas
+        WHERE aa.assets_set_id = aas.assets_set_id
+        AND aa.tenant_id=aas.tenant_id
+        AND aa.tenant_id = #{tenantId}
+        <if test="assetId != null">
+            AND aa.asset_id = #{assetId}
+        </if>
+        <if test="assetDesc != null">
+            <bind name="assetDescLike" value="'%'+assetDesc+'%'"/>
+            AND aa.asset_desc like #{assetDescLike}
+        </if>
+        <if test="name != null">
+            <bind name="nameLike" value="'%'+name+'%'"/>
+            AND aa.name like #{nameLike}
+        </if>
+        <if test="assetNum != null">
+            <bind name="assetNumLike" value="'%'+assetNum+'%'"/>
+            AND aa.asset_num like #{assetNumLike}
+        </if>
+        <if test="assetsSetId != null">
+            AND aa.assets_set_id = #{assetsSetId}
+        </if>
+        <if test="assetClassMeaning != null">
+            <bind name="assetClassMeaningLike" value="'%'+assetClassMeaning+'%'"/>
+            AND apc.product_category_name like #{assetClassMeaningLike}
+        </if>
+        <if test="brand != null">
+            <bind name="brandLike" value="'%'+brand+'%'"/>
+            AND aa.brand like #{brandLike}
+        </if>
+        <if test="model != null">
+            <bind name="modelLike" value="'%'+model+'%'"/>
+            AND aa.model like #{modelLike}
+        </if>
+        <if test="assetCriticality != null">
+            <bind name="assetCriticalityLike" value="'%'+assetCriticality+'%'"/>
+            AND aa.asset_criticality like #{assetCriticalityLike}
+        </if>
+        <if test="serialNum != null">
+            <bind name="serialNumLike" value="'%'+serialNum+'%'"/>
+            AND aa.serial_num like #{serialNumLike}
+        </if>
+        <if test="trackingNum != null">
+            <bind name="trackingNumLike" value="'%'+trackingNum+'%'"/>
+            AND aa.tracking_num like #{trackingNumLike}
+        </if>
+        <if test="receivedDateFrom != null">
+            AND aa.received_date  <![CDATA[ >= ]]> #{receivedDateFrom}
+        </if>
+        <if test="receivedDateTo != null">
+            AND aa.received_date  <![CDATA[ <= ]]> #{receivedDateTo}
+        </if>
+        <if test="startDateFrom != null">
+            AND aa.start_date  <![CDATA[ >= ]]> #{startDateFrom}
+        </if>
+        <if test="startDateTo != null">
+            AND aa.start_date  <![CDATA[ <= ]]> #{startDateTo}
+        </if>
+        <if test="assetLocationId != null">
+            AND aa.asset_location_id = #{assetLocationId}
+        </if>
+        <if test="owningOrgId != null">
+            AND aa.owning_org_id = #{owningOrgId}
+        </if>
+        <if test="userPersonId != null">
+            AND aa.user_person_id = #{userPersonId}
+        </if>
+        <if test="specialAssetCode != null">
+            AND aa.special_asset_code = #{specialAssetCode}
+        </if>
+        <if test="assetSpecialtyId != null">
+            AND aa.asset_specialty_id = #{assetSpecialtyId}
+        </if>
+        <if test="description != null">
+            <bind name="descriptionLike" value="'%'+description+'%'"/>
+            AND aa.description like #{descriptionLike}
+        </if>
+    </select>
+
+    <select id="selectAssetByDetailCondition" resultType="org.hzero.halm.afm.domain.entity.Asset">
+        SELECT aa.aos_receiving_report_id,
+        aa.assets_set_id,
+        aas.assets_set_name,
+        aa.asset_class_id,
+        apc.product_category_name asset_class_meaning,
+        aa.asset_criticality,
+        aa.asset_desc,
+        aa.asset_icon,
+        aa.asset_id,
+        aa.asset_location_desc,
+        aa.asset_location_id,
+        asset_locations.location_name asset_location_name,
+        aa.asset_name,
+        aa.asset_num,
+        aa.asset_source_detail,
+        aa.asset_source_id,
+        aa.asset_source_type_code,
+        aa.asset_status_id,
+        asset_status.asset_status_code asset_status,
+        asset_status.sys_status_name,
+        asset_status.user_status_name,
+        asset_status.sys_status_name asset_status_name,
+        aa.attribute_values,
+        aa.brand,
+        aa.car_num,
+        aa.cost_center_id,
+        aa.created_by,
+        aa.creation_date,
+        aa.currency_code,
+        aa.description,
+        aa.engine_num,
+        aa.last_updated_by,
+        aa.last_update_date,
+        aa.maintain_flag,
+        aa.map_source,
+        aa.model,
+        aa.`name`,
+        aa.name_rule_code,
+        aa.object_version_number,
+        aa.original_cost,
+        aa.asset_specialty_id,
+        asset_specialty.asset_specialty_name,
+        aa.owning_org_id,
+        owning_org.org_name owning_org_name,
+        aa.owning_org_detail,
+        aa.owning_person_id,
+        owning_person.name owning_person_name,
+        aa.parent_asset_id,
+        parent_asset.asset_name parent_asset_name,
+        aa.received_date,
+        aa.serial_num,
+        aa.source_contract_id,
+        aa.source_project_id,
+        aa.special_asset_code,
+        aa.start_date,
+        aa.supplier_org_id,
+        supplier_org.org_name supplier_org_meaning,
+        aa.manufacturer_id,
+        manufacturer.org_name manufacturer_name,
+        aa.tenant_id,
+        aa.tracking_num,
+        aa.user_person_id,
+        user_person.name user_person_name,
+        aa.using_org_id,
+        using_org.org_name using_org_name,
+        aa.using_org_detail,
+        aa.vin_num,
+        aa.warranty_expire_date,
+        aa.warranty_start_date,
+        aa.warranty_type_code,
+        aa.warranty_type_rule,
+        aas.attribute_set_id,
+        aa.warranty_notes
+        FROM aafm_asset aa
+        LEFT JOIN aafm_product_categories apc
+        ON(apc.product_category_id=aa.asset_class_id)
+        LEFT JOIN aafm_asset_specialty asset_specialty
+        ON(aa.asset_specialty_id=asset_specialty.asset_specialty_id)
+        LEFT JOIN amdm_asset_locations asset_locations
+        ON(aa.asset_location_id=asset_locations.asset_location_id)
+        LEFT JOIN amdm_organization using_org
+        ON(aa.using_org_id=using_org.org_id)
+        LEFT JOIN amdm_organization owning_org
+        ON(aa.owning_org_id=owning_org.org_id)
+        LEFT JOIN amdm_organization supplier_org
+        ON(aa.supplier_org_id=supplier_org.org_id)
+        LEFT JOIN amdm_organization manufacturer
+        ON(aa.manufacturer_id=manufacturer.org_id)
+        LEFT JOIN aafm_asset_status asset_status
+        ON(asset_status.asset_status_id=aa.asset_status_id)
+        LEFT JOIN hpfm_employee owning_person
+        ON(owning_person.employee_id=aa.owning_person_id)
+        LEFT JOIN hpfm_employee user_person
+        ON(user_person.employee_id=aa.user_person_id)
+        LEFT JOIN aafm_asset parent_asset
+        ON(parent_asset.asset_id=aa.parent_asset_id),
+        aafm_assets_set aas
+        WHERE aa.assets_set_id = aas.assets_set_id
+        AND aa.tenant_id=aas.tenant_id
+        AND aa.tenant_id = #{tenantId}
+        <if test="detailCondition!=null and detailCondition!=''">
+            and (
+            aa.name like concat('%', concat(#{detailCondition},'%'))
+            or aa.asset_desc like concat('%', concat(#{detailCondition},'%'))
+            )
+        </if>
+        <if test="organizationIds != null and organizationIds.size() > 0">
+            and aa.owning_org_id in
+            <foreach collection="organizationIds" open="(" item="organizationId" close=")" separator=",">
+                #{organizationId}
+            </foreach>
+        </if>
+        <if test="statusIds != null and statusIds.size() > 0">
+            and aa.asset_status_id in
+            <foreach collection="statusIds" open="(" item="statusId" close=")" separator=",">
+                #{statusId}
+            </foreach>
+        </if>
+        <if test="specialtyIds != null and specialtyIds.size() > 0">
+            and aa.asset_specialty_id in
+            <foreach collection="specialtyIds" open="(" item="specialtyId" close=")" separator=",">
+                #{specialtyId}
+            </foreach>
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.rcv.infra.mapper.AcceptanceTypeMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.rcv.domain.entity.AcceptanceType">
+        <result column="acceptance_type_id" property="acceptanceTypeId" jdbcType="DECIMAL"/>
+        <result column="code_rule" property="codeRule" jdbcType="VARCHAR"/>
+        <result column="acceptance_type_code" property="acceptanceTypeCode" jdbcType="VARCHAR"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="full_name" property="fullName" jdbcType="VARCHAR"/>
+        <result column="short_name" property="shortName" jdbcType="VARCHAR"/>
+        <result column="project_flag" property="projectFlag" jdbcType="DECIMAL"/>
+        <result column="budget_flag" property="budgetFlag" jdbcType="DECIMAL"/>
+        <result column="transfer_fixed_code" property="transferFixedCode" jdbcType="VARCHAR"/>
+        <result column="approve_flow_flag" property="approveFlowFlag" jdbcType="DECIMAL"/>
+        <result column="tag" property="tag" jdbcType="VARCHAR"/>
+        <result column="complete_asset_status_id" property="completeAssetStatusId" jdbcType="DECIMAL"/>
+        <result column="transfer_interface_flag" property="transferInterfaceFlag" jdbcType="DECIMAL"/>
+        <result column="directly_complete_flag" property="directlyCompleteFlag" jdbcType="DECIMAL"/>
+        <result column="in_contract_flag" property="inContractFlag" jdbcType="DECIMAL"/>
+        <result column="create_fa_flag" property="createFaFlag" jdbcType="DECIMAL"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+
+    <select id="acceptanceTypeList" resultType="org.hzero.halm.rcv.domain.entity.AcceptanceType">
+        SELECT
+        aat.acceptance_type_id,
+        aat.code_rule,
+        hcr.rule_name codeRuleMeaning,
+        aat.acceptance_type_code,
+        aat.code,
+        aat.full_name,
+        aat.short_name,
+        aat.project_flag,
+        aat.budget_flag,
+        aat.transfer_fixed_code,
+        aat.approve_flow_flag,
+        aat.tag,
+        aat.complete_asset_status_id,
+        aat.transfer_interface_flag,
+        aat.directly_complete_flag,
+        aat.in_contract_flag,
+        aat.create_fa_flag,
+        aat.enabled_flag,
+        aat.description,
+        aat.tenant_id,
+        aas.user_status_name assetStatusMeaning,
+        aat.object_version_number
+        FROM arcv_acceptance_type aat
+        LEFT JOIN aafm_asset_status aas ON aas.asset_status_id = aat.complete_asset_status_id
+        LEFT JOIN hpfm_code_rule hcr ON hcr.rule_code = aat.code_rule AND hcr.tenant_id = #{tenantId}
+        <where>
+            <if test="tenantId != null">
+                AND aat.tenant_id = #{tenantId}
+            </if>
+            <if test="acceptanceTypeId != null">
+                AND aat.acceptance_type_id = #{acceptanceTypeId}
+            </if>
+            <if test="enabledFlag != null">
+                AND aat.enabled_flag = #{enabledFlag}
+            </if>
+            <if test="acceptanceTypeCode != null and acceptanceTypeCode != ''">
+                AND aat.acceptance_type_code = #{acceptanceTypeCode}
+            </if>
+            <if test="transferFixedCode != null and transferFixedCode != ''">
+                AND aat.transfer_fixed_code = #{transferFixedCode}
+            </if>
+            <if test="code != null and code != ''">
+                <bind name="codeLike" value="'%'+code+'%'"/>
+                AND aat.code LIKE #{codeLike}
+            </if>
+            <if test="shortName != null and shortName != ''">
+                <bind name="shortNameLike" value="'%'+shortName+'%'"/>
+                AND aat.short_name LIKE #{shortNameLike}
+            </if>
+            <if test="fullName != null and fullName != ''">
+                <bind name="fullNameLike" value="'%'+fullName+'%'"/>
+                AND aat.full_name LIKE #{fullNameLike}
+            </if>
+            <if test="approveFlowFlag != null">
+                AND aat.approve_flow_flag = #{approveFlowFlag}
+            </if>
+            <if test="condition!=null and condition!=''">
+                <bind name="detailConditionLike" value="'%'+condition+'%'"/>
+                AND (
+                aat.code LIKE #{detailConditionLike}
+                OR aat.short_name LIKE #{detailConditionLike}
+                OR aat.full_name LIKE #{detailConditionLike}
+                <if test="acceptanceTypeCodeList != null and acceptanceTypeCodeList.size() > 0">
+                    OR aat.acceptance_type_code IN
+                    <foreach collection="acceptanceTypeCodeList" separator="," open="(" close=")" item="code">
+                        #{code}
+                    </foreach>
+                </if>
+                <if test="enabledFlagList != null and enabledFlagList.size() > 0">
+                    OR aat.enabled_flag IN
+                    <foreach collection="enabledFlagList" separator="," open="(" close=")" item="enabled">
+                        #{enabled}
+                    </foreach>
+                </if>
+                )
+            </if>
+            <if test="accTypeCodeList != null and accTypeCodeList.size() > 0">
+                AND aat.acceptance_type_code IN
+                <foreach collection="accTypeCodeList" separator="," open="(" close=")" item="type">
+                    #{type}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="acceptanceTypeDetail" resultType="org.hzero.halm.rcv.domain.entity.AcceptanceType">
+        SELECT
+        aat.acceptance_type_id,
+        aat.code_rule,
+        aat.acceptance_type_code,
+        aat.code,
+        hcr.rule_name codeRuleMeaning,
+        aat.full_name,
+        aat.short_name,
+        aat.project_flag,
+        aat.budget_flag,
+        aat.transfer_fixed_code,
+        aat.approve_flow_flag,
+        aat.tag,
+        aat.complete_asset_status_id,
+        aas.user_status_name assetStatusMeaning,
+        aat.transfer_interface_flag,
+        aat.directly_complete_flag,
+        aat.in_contract_flag,
+        aat.create_fa_flag,
+        aat.enabled_flag,
+        aat.description,
+        aat.tenant_id,
+        aat.object_version_number
+        FROM arcv_acceptance_type aat
+        LEFT JOIN aafm_asset_status aas ON aas.asset_status_id = aat.complete_asset_status_id
+        LEFT JOIN hpfm_code_rule hcr ON hcr.rule_code = aat.code_rule AND hcr.tenant_id = #{tenantId}
+        <where>
+        <if test="tenantId != null">
+            AND aat.tenant_id = #{tenantId}
+        </if>
+        <if test="acceptanceTypeId != null">
+            AND aat.acceptance_type_id = #{acceptanceTypeId}
+        </if>
+        </where>
+    </select>
+</mapper>

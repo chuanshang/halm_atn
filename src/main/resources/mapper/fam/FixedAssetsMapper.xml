@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.fam.infra.mapper.FixedAssetsMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.fam.domain.entity.FixedAssets">
+        <result column="fixed_asset_id" property="fixedAssetId" jdbcType="DECIMAL"/>
+        <result column="fixed_asset_name" property="fixedAssetName" jdbcType="VARCHAR"/>
+        <result column="financial_num" property="financialNum" jdbcType="VARCHAR"/>
+        <result column="transfer_date" property="transferDate" jdbcType="DATE"/>
+        <result column="asset_book_code" property="assetBookCode" jdbcType="VARCHAR"/>
+        <result column="asset_catalog_id" property="assetCatalogId" jdbcType="DECIMAL"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="depreciation_start_date" property="depreciationStartDate" jdbcType="DATE"/>
+        <result column="depreciation_mouth" property="depreciationMouth" jdbcType="DECIMAL"/>
+        <result column="depreciation_type_code" property="depreciationTypeCode" jdbcType="VARCHAR"/>
+        <result column="residual_value_rate" property="residualValueRate" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <sql id="basic_field">
+        afa.fixed_asset_id,
+        afa.fixed_asset_name,
+        afa.financial_num,
+        afa.transfer_date,
+        afa.asset_book_code,
+        afa.asset_catalog_id,
+        afa.description,
+        afa.depreciation_start_date,
+        afa.depreciation_mouth,
+        afa.depreciation_type_code,
+        afa.residual_value_rate,
+    </sql>
+
+    <sql id="rel_field">
+        aac.catalog_name asset_catalog_name,
+    </sql>
+
+    <sql id="rel_table">
+        LEFT JOIN afam_asset_catalog aac ON aac.asset_catalog_id = afa.asset_catalog_id
+    </sql>
+
+    <select id="listFixedAssets" resultType="org.hzero.halm.fam.api.dto.FixedAssetsDTO">
+        SELECT
+        <include refid="basic_field"/>
+        <include refid="rel_field"/>
+        afa.tenant_id,
+        afa.object_version_number,
+        afa.created_by,
+        afa.creation_date,
+        afa.last_updated_by,
+        afa.last_update_date
+        FROM afam_fixed_assets afa
+        <include refid="rel_table"/>
+        WHERE afa.tenant_id = #{tenantId}
+        <if test="fixedAssetName != null and fixedAssetName != ''">
+            <bind name="fixedAssetNameLike" value="'%'+fixedAssetName+'%'" />
+            AND afa.fixed_asset_name like #{fixedAssetNameLike}
+        </if>
+        <if test="financialNum != null and financialNum != ''">
+            <bind name="financialNumLike" value="'%'+financialNum+'%'" />
+            AND afa.financial_num like #{financialNumLike}
+        </if>
+        <if test="assetCatalogId != null">
+            AND afa.asset_catalog_id = #{assetCatalogId}
+        </if>
+        <if test="assetBookCode != null">
+            AND vafa.asset_book_code = #{assetBookCode}
+        </if>
+        <if test="transferDateFrom!=null">
+            AND afa.transfer_date <![CDATA[ >= ]]> #{transferDateFrom}
+        </if>
+        <if test="transferDateTo!=null">
+            AND afa.transfer_date <![CDATA[ <= ]]> #{transferDateTo}
+        </if>
+        <if test="detailSelectItem != null and detailSelectItem!=''">
+            <bind name="detailSelectItemLike" value="'%'+detailSelectItem+'%'" />
+            AND (afa.fixed_asset_name like #{detailSelectItemLike}
+            OR afa.financial_num like #{detailSelectItemLike})
+        </if>
+    </select>
+
+    <select id="getFixedAssets" resultType="org.hzero.halm.fam.api.dto.FixedAssetsDTO">
+        SELECT
+        <include refid="basic_field"/>
+        <include refid="rel_field"/>
+        afa.tenant_id,
+        afa.object_version_number,
+        afa.created_by,
+        afa.creation_date,
+        afa.last_updated_by,
+        afa.last_update_date
+        FROM afam_fixed_assets afa
+        <include refid="rel_table"/>
+        WHERE afa.tenant_id = #{tenantId}
+        AND afa.fixed_asset_id = #{fixedAssetId}
+    </select>
+
+    <select id="exportFixedAssets" resultType="org.hzero.halm.fam.api.dto.FixedAssetsDTO">
+        SELECT
+        <include refid="basic_field"/>
+        <include refid="rel_field"/>
+        afa.tenant_id,
+        afa.object_version_number,
+        afa.created_by,
+        afa.creation_date,
+        afa.last_updated_by,
+        afa.last_update_date
+        FROM afam_fixed_assets afa
+        <include refid="rel_table"/>
+        WHERE afa.tenant_id = #{tenantId}
+        <if test="fixedAssetName != null and fixedAssetName != ''">
+            <bind name="fixedAssetNameLike" value="'%'+fixedAssetName+'%'" />
+            AND afa.fixed_asset_name like #{fixedAssetNameLike}
+        </if>
+        <if test="financialNum != null and financialNum != ''">
+            <bind name="financialNumLike" value="'%'+financialNum+'%'" />
+            AND afa.financial_num like #{financialNumLike}
+        </if>
+    </select>
+</mapper>

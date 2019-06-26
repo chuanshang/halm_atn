@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.atn.infra.mapper.TransactionHistoryMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.atn.domain.entity.TransactionHistory">
+        <result column="transaction_history_id" property="transactionHistoryId" jdbcType="DECIMAL"/>
+        <result column="asset_id" property="assetId" jdbcType="DECIMAL"/>
+        <result column="transaction_header_id" property="transactionHeaderId" jdbcType="DECIMAL"/>
+        <result column="transaction_line_id" property="transactionLineId" jdbcType="DECIMAL"/>
+        <result column="transaction_type_id" property="transactionTypeId" jdbcType="DECIMAL"/>
+        <result column="process_status_record" property="processStatusRecord" jdbcType="VARCHAR"/>
+        <result column="process_time_record" property="processTimeRecord" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+
+        <result column="header_id" property="headerId" jdbcType="DECIMAL"/>
+        <result column="transaction_num" property="transactionNum" jdbcType="VARCHAR"/>
+        <result column="title_overview" property="titleOverview" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="type_name" property="typeName" jdbcType="VARCHAR"/>
+        <result column="short_name" property="shortName" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <select id="selectEventHistory" resultMap="BaseResultMap">
+      select
+        transaction_type_id,
+        transaction_num,
+        title_overview,
+        header_id,
+        description,
+        process_status_record,
+        process_time_record,
+        short_name,
+        creation_date,
+        line_creation_date,
+        line_last_update_date
+       from (
+
+        SELECT
+        header.transaction_type_id,
+        header.handover_num transaction_num,
+        header.title_overview,
+        header.handover_header_id header_id,
+        line.description,
+        th.process_status_record,
+        th.process_time_record,
+        types.short_name,
+        th.creation_date,
+        line.creation_date line_creation_date,
+        line.last_update_date line_last_update_date
+        FROM
+        aatn_transaction_history th
+        LEFT JOIN aatn_handover_order_line line ON th.transaction_line_id = line.handover_line_id
+        LEFT JOIN aatn_handover_order_header header ON header.handover_header_id = line.handover_header_id
+        LEFT JOIN aafm_transaction_types types on types.transaction_type_id = header.transaction_type_id
+        WHERE
+        line.asset_id = th.asset_id
+        AND th.transaction_type_id = header.transaction_type_id
+        AND th.asset_id = #{assetId}
+
+        UNION
+
+        SELECT
+        th.transaction_type_id,
+        header.transfer_num transaction_num,
+        header.title_overview,
+        header.transfer_header_id header_id,
+        line.description,
+        th.process_status_record,
+        th.process_time_record,
+        types.short_name,
+        th.creation_date,
+        line.creation_date line_creation_date,
+        line.last_update_date line_last_update_date
+        FROM
+        aatn_transaction_history th
+        LEFT JOIN aatn_transfer_order_line line ON th.transaction_line_id = line.transfer_line_id
+        LEFT JOIN aatn_transfer_order_header header ON header.transfer_header_id = line.transfer_header_id
+        LEFT JOIN aafm_transaction_types types on types.transaction_type_id = header.transaction_type_id
+        WHERE
+        line.asset_id = th.asset_id
+        AND th.transaction_type_id = header.transaction_type_id
+        AND th.asset_id = #{assetId}
+
+        UNION
+
+        SELECT
+        th.transaction_type_id,
+        header.scrap_num transaction_num,
+        header.title_overview,
+        header.scrap_header_id header_id,
+        line.description,
+        th.process_status_record,
+        th.process_time_record,
+        types.short_name,
+        th.creation_date,
+        line.creation_date line_creation_date,
+        line.last_update_date line_last_update_date
+        FROM
+        aatn_transaction_history th
+        LEFT JOIN aatn_scrap_order_line line ON th.transaction_line_id = line.scrap_line_id
+        LEFT JOIN aatn_scrap_order_header header ON header.scrap_header_id = line.scrap_header_id
+        LEFT JOIN aafm_transaction_types types on types.transaction_type_id = header.transaction_type_id
+        WHERE
+        line.asset_id = th.asset_id
+        AND th.transaction_type_id = header.transaction_type_id
+        AND th.asset_id = #{assetId}
+
+        UNION
+
+        SELECT
+        th.transaction_type_id,
+        header.dispose_num transaction_num,
+        header.title_overview,
+        header.dispose_header_id header_id,
+        line.description,
+        th.process_status_record,
+        th.process_time_record,
+        types.short_name,
+        th.creation_date,
+        line.creation_date line_creation_date,
+        line.last_update_date line_last_update_date
+        FROM
+        aatn_transaction_history th
+        LEFT JOIN aatn_dispose_order_line line ON th.transaction_line_id = line.dispose_line_id
+        LEFT JOIN aatn_dispose_order_header header ON header.dispose_header_id = line.dispose_header_id
+        LEFT JOIN aafm_transaction_types types on types.transaction_type_id = header.transaction_type_id
+        WHERE
+        line.asset_id = th.asset_id
+        AND th.transaction_type_id = header.transaction_type_id
+        AND th.asset_id = #{assetId}
+
+        UNION
+
+        SELECT
+        th.transaction_type_id,
+        header.change_num transaction_num,
+        header.title_overview,
+        header.change_header_id header_id,
+        line.description,
+        th.process_status_record,
+        th.process_time_record,
+        types.short_name,
+        th.creation_date,
+        line.creation_date line_creation_date,
+        line.last_update_date line_last_update_date
+        FROM
+        aatn_transaction_history th
+        LEFT JOIN aatn_change_order_line line ON th.transaction_line_id = line.change_line_id
+        LEFT JOIN aatn_change_order_header header ON header.change_header_id = line.change_header_id
+        LEFT JOIN aafm_transaction_types types on types.transaction_type_id = header.transaction_type_id
+        WHERE
+        line.asset_id = th.asset_id
+        AND th.transaction_type_id = header.transaction_type_id
+        AND th.asset_id = #{assetId}
+        ) tem
+        <where>
+            <if test="createDateFrom!=null">
+                and tem.line_creation_date &gt;= #{createDateFrom}
+            </if>
+            <if test="createDateTo!=null">
+                and tem.line_last_update_date &lt;= #{createDateTo}
+            </if>
+            <if test="transactionTypeIdList!=null and transactionTypeIdList.size()>0">
+                and tem.transaction_type_id in
+                <foreach item="id" collection="transactionTypeIdList" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        order by creation_date
+    </select>
+
+</mapper>

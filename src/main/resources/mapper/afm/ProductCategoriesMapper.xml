@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.afm.infra.mapper.ProductCategoriesMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.afm.domain.entity.ProductCategories">
+        <result column="product_category_id" property="productCategoryId" jdbcType="DECIMAL"/>
+        <result column="product_category_name" property="productCategoryName" jdbcType="VARCHAR"/>
+        <result column="product_category_code" property="productCategoryCode" jdbcType="VARCHAR"/>
+        <result column="parent_category_id" property="parentCategoryId" jdbcType="DECIMAL"/>
+        <result column="category_description" property="categoryDescription" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="code_rule" property="codeRule" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <resultMap id="RecursiveMap" type="org.hzero.halm.afm.api.dto.ProductCategoriesDTO">
+        <result column="product_category_id" property="productCategoryId" jdbcType="DECIMAL"/>
+        <result column="product_category_name" property="productCategoryName" jdbcType="VARCHAR"/>
+        <result column="product_category_code" property="productCategoryCode" jdbcType="VARCHAR"/>
+        <result column="parent_category_id" property="parentCategoryId" jdbcType="DECIMAL"/>
+        <result column="category_description" property="categoryDescription" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="code_rule" property="codeRule" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <collection column="product_category_id" property="children"
+                    ofType="org.hzero.halm.afm.api.dto.ProductCategoriesDTO" select="selectChildList"/>
+    </resultMap>
+    <select id="selectProductCategories" resultType="org.hzero.halm.afm.api.dto.ProductCategoriesDTO">
+        SELECT
+        apc.product_category_id,
+        apc.product_category_name,
+        apc.product_category_code,
+        apc.parent_category_id,
+        apcr.product_category_name parent_category_name,
+        apc.category_description,
+        apc.enabled_flag,
+        apc.code_rule,
+        apc.tenant_id,
+        apc.object_version_number
+        FROM
+        aafm_product_categories apc
+        LEFT JOIN aafm_product_categories apcr ON apc.parent_category_id = apcr.product_category_id
+        WHERE 1=1
+        <if test="enabledFlag != null">
+            AND apc.enabled_flag = #{enabledFlag}
+        </if>
+        AND EXISTS (
+        SELECT 1
+        FROM aafm_product_categories apcl
+        <where>
+            AND (
+            apcl.level_path LIKE concat('%/', concat(apc.product_category_id,'/%'))
+            OR apcl.level_path LIKE concat(apc.product_category_id,'/%')
+            OR apcl.level_path LIKE concat('%/',apc.product_category_id)
+            OR apcl.level_path = apc.product_category_id
+
+            OR apc.level_path LIKE concat(apcl.level_path, '/%')
+            OR apc.level_path = apcl.product_category_id
+            OR apc.product_category_id = apcl.product_category_id
+            )
+            <if test="tenantId != null">
+                AND apcl.tenant_id = #{tenantId}
+            </if>
+            <if test="productCategoryCode != null and productCategoryCode != ''">
+                <bind name="productCategoryCodeLike" value="'%'+productCategoryCode+'%'"/>
+                AND apcl.product_category_code LIKE #{productCategoryCodeLike}
+            </if>
+            <if test="productCategoryName != null and productCategoryName != ''">
+                <bind name="productCategoryNameLike" value="'%'+productCategoryName+'%'"/>
+                AND apcl.product_category_name LIKE #{productCategoryNameLike}
+            </if>
+            <if test="categoryDescription != null and categoryDescription != ''">
+                <bind name="categoryDescriptionLike" value="'%'+categoryDescription+'%'"/>
+                AND apcl.category_description LIKE #{categoryDescriptionLike}
+            </if>
+        </where>
+        )
+    </select>
+    <select id="selectParent" resultMap="RecursiveMap">
+        SELECT
+            apc.product_category_id,
+            apc.product_category_name,
+            apc.product_category_code,
+            apc.parent_category_id,
+            apc.category_description,
+            apc.enabled_flag,
+            apc.code_rule,
+            apc.tenant_id,
+            apc.object_version_number
+        FROM
+            aafm_product_categories apc
+        WHERE
+            apc.parent_category_id IS NULL
+    </select>
+    <select id="selectChildList" resultMap="RecursiveMap">
+        SELECT
+            apc.product_category_id,
+            apc.product_category_name,
+            apc.product_category_code,
+            apc.parent_category_id,
+            apc.category_description,
+            apc.enabled_flag,
+            apc.code_rule,
+            apc.tenant_id,
+            apc.object_version_number
+        FROM
+            aafm_product_categories apc
+        WHERE
+            apc.parent_category_id = #{productCategoryId}
+    </select>
+</mapper>

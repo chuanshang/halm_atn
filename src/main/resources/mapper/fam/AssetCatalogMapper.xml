@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.fam.infra.mapper.AssetCatalogMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.fam.domain.entity.AssetCatalog">
+        <result column="asset_catalog_id" property="assetCatalogId" jdbcType="DECIMAL"/>
+        <result column="catalog_name" property="catalogName" jdbcType="VARCHAR"/>
+        <result column="product_category_id" property="productCategoryId" jdbcType="DECIMAL"/>
+        <result column="catalog_code" property="catalogCode" jdbcType="VARCHAR"/>
+        <result column="residual_value_rate" property="residualValueRate" jdbcType="DECIMAL"/>
+        <result column="depreciation_month" property="depreciationMonth" jdbcType="DECIMAL"/>
+        <result column="depreciation_type_code" property="depreciationTypeCode" jdbcType="VARCHAR"/>
+        <result column="account_type_code" property="accountTypeCode" jdbcType="VARCHAR"/>
+        <result column="parent_catalog_id" property="parentCatalogId" jdbcType="DECIMAL"/>
+        <result column="level_path" property="levelPath" jdbcType="VARCHAR"/>
+        <result column="level_number" property="levelNumber" jdbcType="DECIMAL"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <resultMap id="RecursiveMap" type="org.hzero.halm.fam.api.dto.AssetCatalogDTO">
+        <result column="asset_catalog_id" property="assetCatalogId" jdbcType="DECIMAL"/>
+        <result column="catalog_name" property="catalogName" jdbcType="VARCHAR"/>
+        <result column="product_category_id" property="productCategoryId" jdbcType="DECIMAL"/>
+        <result column="catalog_code" property="catalogCode" jdbcType="VARCHAR"/>
+        <result column="residual_value_rate" property="residualValueRate" jdbcType="DECIMAL"/>
+        <result column="depreciation_month" property="depreciationMonth" jdbcType="DECIMAL"/>
+        <result column="depreciation_type_code" property="depreciationTypeCode" jdbcType="VARCHAR"/>
+        <result column="account_type_code" property="accountTypeCode" jdbcType="VARCHAR"/>
+        <result column="parent_catalog_id" property="parentCatalogId" jdbcType="DECIMAL"/>
+        <result column="level_path" property="levelPath" jdbcType="VARCHAR"/>
+        <result column="level_number" property="levelNumber" jdbcType="DECIMAL"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <collection column="asset_catalog_id" property="children" ofType="org.hzero.halm.fam.api.dto.AssetCatalogDTO" select="selectChildList" />
+    </resultMap>
+
+    <select id="selectAssetCatalogList" resultType="org.hzero.halm.fam.api.dto.AssetCatalogDTO">
+        SELECT
+        aac.asset_catalog_id,
+        aac.catalog_name,
+        aac.product_category_id,
+        aac.catalog_code,
+        aac.residual_value_rate,
+        aac.depreciation_month,
+        aac.depreciation_type_code,
+        aac.account_type_code,
+        aac.enabled_flag,
+        aac.description,
+        aac.tenant_id,
+        aac.parent_catalog_id,
+        aac.level_path,
+        aac.level_number,
+        apc.product_category_name productCategoryMeaning,
+        aac.object_version_number
+        FROM afam_asset_catalog aac
+        LEFT JOIN aafm_product_categories apc ON aac.product_category_id = apc.product_category_id
+        WHERE 1 = 1 AND
+         EXISTS (
+            SELECT 1
+            FROM
+            afam_asset_catalog aac2
+            WHERE
+            1 = 1
+            AND aac2.tenant_id = #{tenantId}
+            AND (
+                aac.level_path LIKE CONCAT( "%/", aac2.asset_catalog_id )
+                OR aac.level_path LIKE CONCAT( aac2.asset_catalog_id, "/%" )
+                OR aac.level_path LIKE CONCAT( "%/", aac2.asset_catalog_id, "/%" )
+                OR aac2.asset_catalog_id = aac.asset_catalog_id
+                OR aac2.level_path LIKE CONCAT( "%/", aac.asset_catalog_id )
+                OR aac2.level_path LIKE CONCAT( aac.asset_catalog_id, "/%" )
+                OR aac2.level_path LIKE CONCAT( "%/", aac.asset_catalog_id, "/%" ))
+            <if test="assetCatalogId != null and assetCatalogId !=''">
+                AND aac2.asset_catalog_id = #{assetCatalogId}
+            </if>
+            <if test="catalogCode != null and catalogCode !=''">
+                <bind name="catalogCodeLike" value="'%' +catalogCode+ '%'"/>
+                AND aac2.catalog_code LIKE #{catalogCodeLike}
+            </if>
+            <if test="catalogName != null and catalogName !=''">
+                <bind name="catalogNameLike" value="'%' +catalogName+ '%'"/>
+                AND aac2.catalog_name LIKE #{catalogNameLike}
+            </if>
+            <if test="enabledFlag != null" >
+                AND aac2.enabled_flag = #{enabledFlag}
+                AND aac.enabled_flag = #{enabledFlag}
+            </if>
+        )
+    </select>
+
+    <select id="selectLowerLevelAssetCatalog" resultType="org.hzero.halm.fam.domain.entity.AssetCatalog">
+        SELECT
+        aac.asset_catalog_id,
+        aac.catalog_name,
+        aac.product_category_id,
+        aac.catalog_code,
+        aac.residual_value_rate,
+        aac.depreciation_month,
+        aac.depreciation_type_code,
+        aac.account_type_code,
+        aac.enabled_flag,
+        aac.description,
+        aac.tenant_id,
+        aac.parent_catalog_id,
+        aac.level_path,
+        aac.level_number,
+        aac.object_version_number
+        FROM afam_asset_catalog aac
+        WHERE
+        aac.tenant_id = #{tenantId}
+        AND aac.enabled_flag=1
+        AND aac.level_path LIKE CONCAT( "/", #{assetCatalogId}, "%" )
+
+    </select>
+
+    <select id="selectChildList" resultMap="RecursiveMap">
+        SELECT
+        aac.asset_catalog_id,
+        aac.catalog_name,
+        aac.product_category_id,
+        aac.catalog_code,
+        aac.residual_value_rate,
+        aac.depreciation_month,
+        aac.depreciation_type_code,
+        aac.account_type_code,
+        aac.enabled_flag,
+        aac.description,
+        aac.tenant_id,
+        aac.parent_catalog_id,
+        aac.level_path,
+        aac.level_number,
+        aac.object_version_number
+        FROM afam_asset_catalog aac
+        WHERE aac.parent_catalog_id = #{assetCatalogId}
+    </select>
+</mapper>

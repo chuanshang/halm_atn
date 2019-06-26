@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.atn.infra.mapper.HandoverOrderHeaderMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.atn.domain.entity.HandoverOrderHeader">
+        <result column="handover_header_id" property="handoverHeaderId" jdbcType="DECIMAL"/>
+        <result column="transaction_type_id" property="transactionTypeId" jdbcType="DECIMAL"/>
+        <result column="process_status" property="processStatus" jdbcType="VARCHAR"/>
+        <result column="principal_person_id" property="principalPersonId" jdbcType="DECIMAL"/>
+        <result column="handover_num" property="handoverNum" jdbcType="VARCHAR"/>
+        <result column="title_overview" property="titleOverview" jdbcType="VARCHAR"/>
+        <result column="plan_start_date" property="planStartDate" jdbcType="DATE"/>
+        <result column="plan_end_date" property="planEndDate" jdbcType="DATE"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+
+        <result column="transactionTypeMeaning" property="transactionTypeMeaning" jdbcType="VARCHAR"/>
+        <result column="transaction_type_code" property="transactionTypeCode" jdbcType="VARCHAR"/>
+        <result column="principal_person_name" property="principalPersonName" jdbcType="VARCHAR"/>
+
+
+    </resultMap>
+
+    <select id="selectHeaderList" resultMap="BaseResultMap">
+        SELECT
+            HOH.HANDOVER_HEADER_ID,
+            HOH.TRANSACTION_TYPE_ID,
+            HOH.PROCESS_STATUS,
+            HOH.PRINCIPAL_PERSON_ID,
+            HOH.HANDOVER_NUM,
+            HOH.TITLE_OVERVIEW,
+            HOH.PLAN_START_DATE,
+            HOH.PLAN_END_DATE,
+            HOH.DESCRIPTION,
+            HOH.TENANT_ID,
+            HOH.OBJECT_VERSION_NUMBER,
+            HOH.CREATION_DATE,
+            HOH.CREATED_BY,
+            HOH.LAST_UPDATED_BY,
+            HOH.LAST_UPDATE_DATE,
+            HOH.principal_person_id,
+            (SELECT HE.NAME FROM HPFM_EMPLOYEE HE where HOH.PRINCIPAL_PERSON_ID = HE.EMPLOYEE_ID) PRINCIPAL_PERSON_NAME,
+
+            ATY.SHORT_NAME transactionTypeMeaning,
+            ATY.TRANSACTION_TYPE_CODE
+        FROM
+          AATN_HANDOVER_ORDER_HEADER HOH
+          LEFT JOIN AAFM_TRANSACTION_TYPES ATY ON ATY.TRANSACTION_TYPE_ID = HOH.TRANSACTION_TYPE_ID
+        <where>
+                AND HOH.TENANT_ID = #{tenantId}
+            <if test="transactionTypeId!=null">
+                AND HOH.TRANSACTION_TYPE_ID = #{transactionTypeId}
+            </if>
+            <if test="processStatus!=null and processStatus!=''">
+                AND HOH.PROCESS_STATUS = #{processStatus}
+            </if>
+            <if test="principalPersonId!=null">
+                AND HOH.PRINCIPAL_PERSON_ID = #{principalPersonId}
+            </if>
+            <if test="handoverNum!=null and handoverNum!=''">
+                <bind name="handoverNumLike" value="'%'+handoverNum+'%'"/>
+                AND HOH.HANDOVER_NUM LIKE #{handoverNumLike}
+            </if>
+            <if test="titleOverview!=null and titleOverview!=''">
+                <bind name="titleOverviewLike" value="'%'+titleOverview+'%'"/>
+                AND HOH.TITLE_OVERVIEW LIKE #{titleOverviewLike}
+            </if>
+            <if test="description!=null and description!=''">
+                <bind name="descriptionLike" value="'%'+description+'%'"/>
+                AND HOH.DESCRIPTION LIKE #{descriptionLike}
+            </if>
+            <if test="planStartDateFrom!=null">
+                AND HOH.PLAN_START_DATE &gt; #{planStartDateFrom}
+            </if>
+            <if test="planStartDateTo!=null">
+                AND HOH.PLAN_START_DATE &lt; #{planStartDateTo}
+            </if>
+            <if test="planEndDateFrom!=null">
+                AND HOH.PLAN_END_DATE &gt; #{planEndDateFrom}
+            </if>
+            <if test="planEndDateTo!=null">
+                AND HOH.PLAN_END_DATE &lt; #{planEndDateTo}
+            </if>
+            <if test="detailCondition!=null and detailCondition!=''">
+                <bind name="detailConditionLike" value="'%'+detailCondition+'%'"/>
+                AND (
+                  HOH.TITLE_OVERVIEW LIKE #{detailConditionLike}
+                  OR ATY.SHORT_NAME LIKE #{detailConditionLike}
+                  OR HOH.HANDOVER_NUM LIKE #{detailConditionLike}
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDetailById" resultMap="BaseResultMap">
+        SELECT
+            HOH.HANDOVER_HEADER_ID,
+            HOH.TRANSACTION_TYPE_ID,
+            HOH.PROCESS_STATUS,
+            HOH.PRINCIPAL_PERSON_ID,
+            HOH.HANDOVER_NUM,
+            HOH.TITLE_OVERVIEW,
+            HOH.PLAN_START_DATE,
+            HOH.PLAN_END_DATE,
+            HOH.DESCRIPTION,
+            HOH.TENANT_ID,
+            HOH.OBJECT_VERSION_NUMBER,
+            HOH.CREATION_DATE,
+            HOH.CREATED_BY,
+            HOH.LAST_UPDATED_BY,
+            HOH.LAST_UPDATE_DATE,
+            HOH.principal_person_id,
+            (SELECT HE.NAME FROM HPFM_EMPLOYEE HE where HOH.PRINCIPAL_PERSON_ID = HE.EMPLOYEE_ID) PRINCIPAL_PERSON_NAME,
+
+            ATY.SHORT_NAME transactionTypeMeaning,
+            ATY.TRANSACTION_TYPE_CODE
+        FROM
+          AATN_HANDOVER_ORDER_HEADER HOH
+          LEFT JOIN AAFM_TRANSACTION_TYPES ATY ON ATY.TRANSACTION_TYPE_ID = HOH.TRANSACTION_TYPE_ID
+          where HOH.HANDOVER_HEADER_ID = #{handoverHeaderId}
+    </select>
+
+
+</mapper>

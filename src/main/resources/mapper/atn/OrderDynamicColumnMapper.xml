@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.atn.infra.mapper.OrderDynamicColumnMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.atn.domain.entity.OrderDynamicColumn">
+        <result column="dynamic_column_id" property="dynamicColumnId" jdbcType="DECIMAL"/>
+        <result column="order_header_id" property="orderHeaderId" jdbcType="DECIMAL"/>
+        <result column="order_line_id" property="orderLineId" jdbcType="DECIMAL"/>
+        <result column="order_type_code" property="orderTypeCode" jdbcType="VARCHAR"/>
+        <result column="current_table_name" property="currentTableName" jdbcType="VARCHAR"/>
+        <result column="current_column_name" property="currentColumnName" jdbcType="VARCHAR"/>
+        <result column="current_column_desc" property="currentColumnDesc" jdbcType="VARCHAR"/>
+        <result column="current_column_value" property="currentColumnValue" jdbcType="VARCHAR"/>
+        <result column="target_column_type" property="targetColumnType" jdbcType="VARCHAR"/>
+        <result column="target_column_value" property="targetColumnValue" jdbcType="VARCHAR"/>
+        <result column="target_column_desc" property="targetColumnDesc" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <select id="selectEmployeeByUserId" resultType="org.hzero.halm.atn.api.dto.EmployeeDTO">
+        SELECT
+          heu.employee_id,
+          heu.tenant_id,
+          heu.user_id,
+          he.employee_num,
+          he.name
+        FROM hpfm_employee_user heu
+        LEFT JOIN hpfm_employee he ON heu.employee_id = he.employee_id
+        WHERE heu.user_id = #{userId} AND heu.tenant_id = #{tenantId}
+    </select>
+</mapper>

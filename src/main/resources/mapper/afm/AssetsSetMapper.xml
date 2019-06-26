@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (C) HAND Enterprise Solutions Company Ltd.
+  ~ All Rights Reserved
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.afm.infra.mapper.AssetsSetMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.afm.domain.entity.AssetsSet">
+        <result column="assets_set_id" property="assetsSetId" jdbcType="DECIMAL"/>
+        <result column="assets_set_num" property="assetsSetNum" jdbcType="VARCHAR"/>
+        <result column="assets_set_name" property="assetsSetName" jdbcType="VARCHAR"/>
+        <result column="asset_name" property="assetName" jdbcType="VARCHAR"/>
+        <result column="special_asset_code" property="specialAssetCode" jdbcType="VARCHAR"/>
+        <result column="brand" property="brand" jdbcType="VARCHAR"/>
+        <result column="specifications" property="specifications" jdbcType="VARCHAR"/>
+        <result column="asset_class_id" property="assetClassId" jdbcType="DECIMAL"/>
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+        <result column="asset_criticality" property="assetCriticality" jdbcType="VARCHAR"/>
+        <result column="attribute_set_id" property="attributeSetId" jdbcType="DECIMAL"/>
+        <result column="special_asset_class_id" property="specialAssetClassId" jdbcType="DECIMAL"/>
+        <result column="fixed_asset_type_code" property="fixedAssetTypeCode" jdbcType="VARCHAR"/>
+        <result column="uom_id" property="uomId" jdbcType="DECIMAL"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="code_rule" property="codeRule" jdbcType="VARCHAR"/>
+        <result column="trade_in_flag" property="tradeInFlag" jdbcType="DECIMAL"/>
+        <result column="only_maint_sites_flag" property="onlyMaintSitesFlag" jdbcType="DECIMAL"/>
+        <result column="maintain_flag" property="maintainFlag" jdbcType="DECIMAL"/>
+        <result column="product_url" property="productUrl" jdbcType="VARCHAR"/>
+        <result column="nameplate_rule_code" property="nameplateRuleCode" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+
+        <result column="attribute_set_name" property="attributeSetMeaning" jdbcType="VARCHAR"/>
+        <result column="uom_name" property="uomMeaning" jdbcType="VARCHAR"/>
+        <result column="product_category_name" property="assetClassMeaning" jdbcType="VARCHAR"/>
+        <result column="asset_specialty_name" property="specialAssetClassMeaning" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <select id="selectAssetList" resultMap="BaseResultMap">
+        SELECT
+        asset.assets_set_id,
+        asset.assets_set_num,
+        asset.assets_set_name,
+        asset.asset_name,
+        asset.special_asset_code,
+        asset.brand,
+        asset.specifications,
+        asset.asset_class_id,
+        asset.url,
+        asset.asset_criticality,
+        asset.attribute_set_id,
+        asset.special_asset_class_id,
+        asset.fixed_asset_type_code,
+        asset.uom_id,
+        asset.description,
+        asset.icon,
+        asset.code_rule,
+        asset.trade_in_flag,
+        asset.only_maint_sites_flag,
+        asset.maintain_flag,
+        asset.product_url,
+        asset.nameplate_rule_code,
+        asset.enabled_flag,
+        asset.tenant_id,
+        asset.object_version_number,
+        asset.creation_date,
+        asset.created_by,
+        asset.last_updated_by,
+        asset.last_update_date,
+        asset.product_name,
+
+        attr.attribute_set_name,
+        uom.uom_name,
+        apc.product_category_name,
+        aas.asset_specialty_name
+        FROM
+        aafm_assets_set asset
+        left join aafm_attribute_set attr on asset.attribute_set_id = attr.attribute_set_id
+        left join aafm_product_categories apc on apc.product_category_id = asset.asset_class_id
+        left join aafm_asset_specialty aas on aas.asset_specialty_id = asset.special_asset_class_id
+        left join hpfm_uom uom on uom.uom_id = asset.uom_id
+        WHERE
+        asset.tenant_id = #{tenantId}
+        <if test="assetsSetNum!=null and assetsSetNum!=''">
+            and asset.assets_set_num like concat('%', concat(#{assetsSetNum},'%'))
+        </if>
+        <if test="assetsSetId!=null and assetsSetId!=''">
+            and asset.assets_set_id = #{assetsSetId}
+        </if>
+        <if test="productName!=null and productName!=''">
+            and asset.product_name like concat('%', concat(#{productName},'%'))
+        </if>
+        <if test="assetsSetName!=null and assetsSetName!=''">
+            and asset.assets_set_name like concat('%', concat(#{assetsSetName},'%'))
+        </if>
+        <if test="specialAssetCode!=null and specialAssetCode!=''">
+            and asset.special_asset_code = #{specialAssetCode}
+        </if>
+        <if test="brand!=null and brand!=''">
+            and asset.brand like concat('%', concat(#{brand},'%'))
+        </if>
+        <if test="specifications!=null and specifications!=''">
+            and asset.specifications like concat('%', concat(#{specifications},'%'))
+        </if>
+        <if test="assetClassId!=null and assetClassId!=''">
+            and asset.asset_class_id = #{assetClassId}
+        </if>
+        <if test="assetCriticality!=null and assetCriticality!=''">
+            and asset.asset_criticality = #{assetCriticality}
+        </if>
+        <if test="attributeSetId!=null and attributeSetId!=''">
+            and asset.attribute_set_id = #{attributeSetId}
+        </if>
+        <if test="specialAssetClassId!=null and specialAssetClassId!=''">
+            and asset.special_asset_class_id = #{specialAssetClassId}
+        </if>
+        <if test="enabledFlag!=null">
+            and asset.enabled_flag = #{enabledFlag}
+        </if>
+        <if test="usedIds != null and usedIds.size() >0">
+            AND asset.assets_set_id NOT IN
+            <foreach collection="usedIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectListByDetailCondition" resultMap="BaseResultMap">
+        SELECT
+        asset.assets_set_id,
+        asset.assets_set_num,
+        asset.assets_set_name,
+        asset.asset_name,
+        asset.special_asset_code,
+        asset.brand,
+        asset.specifications,
+        asset.asset_class_id,
+        asset.url,
+        asset.asset_criticality,
+        asset.attribute_set_id,
+        asset.special_asset_class_id,
+        asset.fixed_asset_type_code,
+        asset.uom_id,
+        asset.description,
+        asset.icon,
+        asset.code_rule,
+        asset.trade_in_flag,
+        asset.only_maint_sites_flag,
+        asset.maintain_flag,
+        asset.product_url,
+        asset.nameplate_rule_code,
+        asset.enabled_flag,
+        asset.tenant_id,
+        asset.object_version_number,
+        asset.creation_date,
+        asset.created_by,
+        asset.last_updated_by,
+        asset.last_update_date,
+        asset.product_name,
+
+        attr.attribute_set_name,
+        uom.uom_name,
+        apc.product_category_name,
+        aas.asset_specialty_name
+        FROM
+        aafm_assets_set asset
+        left join aafm_attribute_set attr on asset.attribute_set_id = attr.attribute_set_id
+        left join aafm_product_categories apc on apc.product_category_id = asset.asset_class_id
+        left join aafm_asset_specialty aas on aas.asset_specialty_id = asset.special_asset_class_id
+        left join hpfm_uom uom on uom.uom_id = asset.uom_id
+        WHERE
+        asset.tenant_id = #{tenantId}
+        <if test="detailCondition!=null and detailCondition!=''">
+            and(
+            asset.assets_set_name like concat('%', concat(#{detailCondition},'%'))
+            or asset.asset_class_id like concat('%', concat(#{detailCondition},'%'))
+            )
+        </if>
+    </select>
+
+</mapper>

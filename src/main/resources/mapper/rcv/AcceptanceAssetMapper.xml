@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.rcv.infra.mapper.AcceptanceAssetMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.rcv.domain.entity.AcceptanceAsset">
+        <result column="acceptance_asset_id" property="acceptanceAssetId" jdbcType="DECIMAL"/>
+        <result column="acceptance_line_id" property="acceptanceLineId" jdbcType="DECIMAL"/>
+        <result column="asset_num" property="assetNum" jdbcType="VARCHAR"/>
+        <result column="asset_class_id" property="assetClassId" jdbcType="DECIMAL"/>
+        <result column="assets_set_id" property="assetsSetId" jdbcType="DECIMAL"/>
+        <result column="supplier_header_id" property="supplierHeaderId" jdbcType="DECIMAL"/>
+        <result column="brand" property="brand" jdbcType="VARCHAR"/>
+        <result column="model" property="model" jdbcType="VARCHAR"/>
+        <result column="asset_status_id" property="assetStatusId" jdbcType="DECIMAL"/>
+        <result column="asset_location_id" property="assetLocationId" jdbcType="DECIMAL"/>
+        <result column="owning_org_id" property="owningOrgId" jdbcType="DECIMAL"/>
+        <result column="using_org_id" property="usingOrgId" jdbcType="DECIMAL"/>
+        <result column="owning_person_id" property="owningPersonId" jdbcType="DECIMAL"/>
+        <result column="user_person_id" property="userPersonId" jdbcType="DECIMAL"/>
+        <result column="cost_center_id" property="costCenterId" jdbcType="VARCHAR"/>
+        <result column="original_cost" property="originalCost" jdbcType="DECIMAL"/>
+        <result column="parent_asset_id" property="parentAssetId" jdbcType="DECIMAL"/>
+        <result column="transfer_fixed_code" property="transferFixedCode" jdbcType="VARCHAR"/>
+        <result column="complete_flag" property="completeFlag" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <select id="listacceptanceAssetByAcceptanceHeaderIds" resultType="org.hzero.halm.rcv.domain.entity.AcceptanceAsset">
+        SELECT
+        aaa.acceptance_asset_id,
+        aaa.acceptance_line_id,
+        aal.acceptance_line_name acceptance_line_meaning,
+        aaa.asset_num,
+        aaa.asset_class_id,
+        apc.product_category_name asset_class_meaning,
+        aaa.assets_set_id,
+        aas.assets_set_name assets_set_meaning,
+        aaa.supplier_header_id,
+        supplier_header.org_name supplier_header_meaning,
+        aaa.brand,
+        aaa.model,
+        aaa.asset_status_id,
+        asset_status.sys_status_name asset_status_meaning,
+        aaa.asset_location_id,
+        asset_locations.location_name asset_location_meaning,
+        aaa.owning_org_id,
+        owning_org.org_name owning_org_meaning,
+        aaa.using_org_id,
+        using_org.org_name using_org_meaning,
+        aaa.owning_person_id,
+        owning_person.NAME owning_person_meaning,
+        aaa.user_person_id,
+        user_person.NAME user_person_meaning,
+        aaa.cost_center_id,
+        aaa.original_cost,
+        aaa.parent_asset_id,
+        parent_asset.asset_name parent_asset_meaning,
+        aaa.transfer_fixed_code,
+        aaa.complete_flag,
+        aaa.tenant_id,
+        aaa.object_version_number
+        FROM
+        arcv_acceptance_asset aaa
+        LEFT JOIN arcv_acceptance_line aal ON aal.acceptance_line_id = aaa.acceptance_line_id
+        LEFT JOIN aafm_product_categories apc ON apc.product_category_id = aaa.asset_class_id
+        LEFT JOIN aafm_assets_set aas ON aas.assets_set_id = aaa.assets_set_id
+        LEFT JOIN aafm_asset_status asset_status ON asset_status.asset_status_id = aaa.asset_status_id
+        LEFT JOIN amdm_asset_locations asset_locations ON aaa.asset_location_id =
+        asset_locations.asset_location_id
+        LEFT JOIN amdm_organization using_org ON aaa.using_org_id = using_org.org_id
+        LEFT JOIN amdm_organization owning_org ON aaa.owning_org_id = owning_org.org_id
+        LEFT JOIN amdm_organization supplier_header ON aaa.supplier_header_id = supplier_header.org_id
+        LEFT JOIN hpfm_employee owning_person ON owning_person.employee_id = aaa.owning_person_id
+        LEFT JOIN hpfm_employee user_person ON user_person.employee_id = aaa.user_person_id
+        LEFT JOIN aafm_asset parent_asset ON parent_asset.asset_id = aaa.parent_asset_id
+        WHERE
+        1 = 1
+        AND aaa.acceptance_line_id IN (
+        SELECT aal.acceptance_line_id
+        FROM arcv_acceptance_line aal
+        WHERE 1 = 1
+        AND aal.tenant_id = #{tenantId}
+        <if test="acceptanceHeaderIds !=null and acceptanceHeaderIds.size>0">
+            AND aal.acceptance_header_id IN
+            <foreach collection="acceptanceHeaderIds" open="(" item="acceptanceHeaderId" close=")" separator=",">
+                #{acceptanceHeaderId}
+            </foreach>
+        </if>
+        )
+    </select>
+</mapper>

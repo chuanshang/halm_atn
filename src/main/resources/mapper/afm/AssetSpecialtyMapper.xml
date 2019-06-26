@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.afm.infra.mapper.AssetSpecialtyMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.afm.domain.entity.AssetSpecialty">
+        <result column="asset_specialty_id" property="assetSpecialtyId" jdbcType="DECIMAL"/>
+        <result column="asset_specialty_name" property="assetSpecialtyName" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="exportAttributeSetByIds" parameterType="org.hzero.halm.afm.domain.entity.AssetSpecialty"
+            resultType="org.hzero.halm.afm.domain.vo.AssetSpecialtyDetailExportVO">
+        SELECT
+        ms.asset_specialty_id,
+        ms.asset_specialty_name,
+        ms.description,
+        ms.enabled_flag
+        FROM
+        aafm_asset_specialty ms
+        where ms.tenant_id = #{tenantId}
+        <if test="assetSpecialtyName !=null and assetSpecialtyName != ''">
+            <bind name="assetSpecialtyNameLike" value="'%'+assetSpecialtyName+'%'"/>
+            And ms.asset_specialty_name like #{assetSpecialtyNameLike}
+        </if>
+    </select>
+
+    <select id="selectListByCondition" resultType="org.hzero.halm.afm.domain.entity.AssetSpecialty">
+        SELECT
+        ms.asset_specialty_id,
+        ms.asset_specialty_name,
+        ms.description,
+        ms.enabled_flag,
+        ms.object_version_number,
+        ms.tenant_id
+        FROM
+        aafm_asset_specialty ms
+        where ms.tenant_id = #{tenantId}
+        <if test="condition !=null and condition != ''">
+            <bind name="conditionLike" value="'%'+condition+'%'"/>
+            And (ms.asset_specialty_name like #{conditionLike}
+            or ms.description like #{conditionLike}
+            )
+        </if>
+    </select>
+
+</mapper>

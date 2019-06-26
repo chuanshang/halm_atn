@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.atn.infra.mapper.TransactionHistoryDetailMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.atn.domain.entity.TransactionHistoryDetail">
+        <result column="history_detail_id" property="historyDetailId" jdbcType="DECIMAL"/>
+        <result column="transaction_history_id" property="transactionHistoryId" jdbcType="DECIMAL"/>
+        <result column="field_name" property="fieldName" jdbcType="VARCHAR"/>
+        <result column="field_value" property="fieldValue" jdbcType="VARCHAR"/>
+        <result column="field_meaning" property="fieldMeaning" jdbcType="VARCHAR"/>
+        <result column="occur_time" property="occurTime" jdbcType="DATE"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+
+        <result column="transaction_num" property="transactionNum" jdbcType="VARCHAR"/>
+        <result column="type_name" property="typeName" jdbcType="VARCHAR"/>
+        <result column="title_overview" property="titleOverview" jdbcType="VARCHAR"/>
+
+
+
+    </resultMap>
+
+    <select id="selectLatestValue" resultType="java.lang.String">
+        SELECT
+          thd.field_value
+        FROM
+          aatn_transaction_history_detail thd
+        WHERE
+          thd.history_detail_id = (
+          SELECT max( history_detail_id )
+            FROM aatn_transaction_history_detail detail
+            LEFT JOIN aatn_transaction_history header ON detail.transaction_history_id = header.transaction_history_id
+            <where>
+                and detail.tenant_id = #{tenantId}
+                and detail.field_name = #{fieldName}
+                and header.asset_id = #{assetId}
+            </where>
+          )
+
+    </select>
+
+    <select id="selectFieldHistory" resultMap="BaseResultMap">
+        SELECT
+        history_detail_id,
+        transaction_history_id,
+        field_name,
+        field_value,
+        field_meaning,
+        occur_time,
+        tenant_id,
+        transaction_num,
+        description,
+        title_overview,
+        type_name
+        from(
+
+        SELECT
+        thd.history_detail_id,
+        thd.transaction_history_id,
+        thd.field_name,
+        thd.field_value,
+        thd.field_meaning,
+        thd.occur_time,
+        thd.tenant_id,
+        header.handover_num transaction_num,
+        header.description,
+        header.title_overview,
+        tt.short_name type_name
+        FROM
+        aatn_transaction_history_detail thd
+        INNER JOIN aatn_transaction_history th ON thd.transaction_history_id = th.transaction_history_id
+        INNER JOIN aafm_transaction_types tt ON tt.transaction_type_id = th.transaction_type_id
+        INNER JOIN aatn_handover_order_header header ON th.transaction_type_id = header.transaction_type_id
+        AND th.transaction_header_id = header.handover_header_id
+        <where>and th.tenant_id = #{tenantId}
+            and th.asset_id = #{assetId}
+                <if test="fieldSet!=null and fieldSet.size>0" >
+                  and thd.field_name in
+                    <foreach item="field" collection="fieldSet" separator="," open="(" close=")">
+                        #{field}
+                    </foreach>
+                </if>
+            </where>
+
+        UNION
+
+        SELECT
+            thd.history_detail_id,
+            thd.transaction_history_id,
+            thd.field_name,
+            thd.field_value,
+            thd.field_meaning,
+            thd.occur_time,
+            thd.tenant_id,
+            header.transfer_num transaction_num,
+            header.description,
+            header.title_overview,
+            tt.short_name type_name
+        FROM
+            aatn_transaction_history_detail thd
+            INNER JOIN aatn_transaction_history th ON thd.transaction_history_id = th.transaction_history_id
+            INNER JOIN aafm_transaction_types tt ON tt.transaction_type_id = th.transaction_type_id
+            INNER JOIN aatn_transfer_order_header header ON th.transaction_type_id = header.transaction_type_id
+            AND th.transaction_header_id = header.transfer_header_id
+        <where>
+            and th.tenant_id = #{tenantId}
+            and th.asset_id = #{assetId}
+            <if test="fieldSet!=null and fieldSet.size>0" >
+                and thd.field_name in
+                <foreach item="field" collection="fieldSet" separator="," open="(" close=")">
+                    #{field}
+                </foreach>
+            </if>
+        </where>
+
+        UNION
+
+        SELECT
+            thd.history_detail_id,
+            thd.transaction_history_id,
+            thd.field_name,
+            thd.field_value,
+            thd.field_meaning,
+            thd.occur_time,
+            thd.tenant_id,
+            header.scrap_num transaction_num,
+            header.description,
+            header.title_overview,
+            tt.short_name type_name
+        FROM
+            aatn_transaction_history_detail thd
+            INNER JOIN aatn_transaction_history th ON thd.transaction_history_id = th.transaction_history_id
+            INNER JOIN aafm_transaction_types tt ON tt.transaction_type_id = th.transaction_type_id
+            INNER JOIN aatn_scrap_order_header header ON th.transaction_type_id = header.transaction_type_id
+            AND th.transaction_header_id = header.scrap_header_id
+        <where>
+            and th.tenant_id = #{tenantId}
+            and th.asset_id = #{assetId}
+            <if test="fieldSet!=null and fieldSet.size>0" >
+                and thd.field_name in
+                <foreach item="field" collection="fieldSet" separator="," open="(" close=")">
+                    #{field}
+                </foreach>
+            </if>
+        </where>
+
+            UNION
+
+        SELECT
+            thd.history_detail_id,
+            thd.transaction_history_id,
+            thd.field_name,
+            thd.field_value,
+            thd.field_meaning,
+            thd.occur_time,
+            thd.tenant_id,
+            header.dispose_num transaction_num,
+            header.description,
+            header.title_overview,
+            tt.short_name type_name
+        FROM
+            aatn_transaction_history_detail thd
+            INNER JOIN aatn_transaction_history th ON thd.transaction_history_id = th.transaction_history_id
+            INNER JOIN aafm_transaction_types tt ON tt.transaction_type_id = th.transaction_type_id
+            INNER JOIN aatn_dispose_order_header header ON th.transaction_type_id = header.transaction_type_id
+            AND th.transaction_header_id = header.dispose_header_id
+        <where>
+            and th.tenant_id = #{tenantId}
+            and th.asset_id = #{assetId}
+            <if test="fieldSet!=null and fieldSet.size>0" >
+                and thd.field_name in
+                <foreach item="field" collection="fieldSet" separator="," open="(" close=")">
+                    #{field}
+                </foreach>
+            </if>
+        </where>
+
+        UNION
+
+        SELECT
+            thd.history_detail_id,
+            thd.transaction_history_id,
+            thd.field_name,
+            thd.field_value,
+            thd.field_meaning,
+            thd.occur_time,
+            thd.tenant_id,
+            header.change_num transaction_num,
+            header.description,
+            header.title_overview,
+            tt.short_name type_name
+        FROM
+            aatn_transaction_history_detail thd
+            INNER JOIN aatn_transaction_history th ON thd.transaction_history_id = th.transaction_history_id
+            INNER JOIN aafm_transaction_types tt ON tt.transaction_type_id = th.transaction_type_id
+            INNER JOIN aatn_change_order_header header ON th.transaction_type_id = header.transaction_type_id
+            AND th.transaction_header_id = header.change_header_id
+        <where>
+            and th.tenant_id = #{tenantId}
+            and th.asset_id = #{assetId}
+            <if test="fieldSet!=null and fieldSet.size>0" >
+                and thd.field_name in
+                <foreach item="field" collection="fieldSet" separator="," open="(" close=")">
+                    #{field}
+                </foreach>
+            </if>
+        </where>
+        ) tem
+        <where>
+        <if test="occurTimeFrom!=null">
+            and tem.occur_time &gt; #{occurTimeFrom}
+        </if>
+        <if test="occurTimeTo!=null">
+            and tem.occur_time &lt; #{occurTimeTo}
+        </if>
+        </where>
+        order by occur_time
+
+    </select>
+
+</mapper>

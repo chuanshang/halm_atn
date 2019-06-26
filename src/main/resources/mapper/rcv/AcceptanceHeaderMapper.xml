@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.rcv.infra.mapper.AcceptanceHeaderMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.rcv.domain.entity.AcceptanceHeader">
+        <result column="acceptance_header_id" property="acceptanceHeaderId" jdbcType="DECIMAL"/>
+        <result column="acceptance_type_id" property="acceptanceTypeId" jdbcType="DECIMAL"/>
+        <result column="acceptance_status_code" property="acceptanceStatusCode" jdbcType="VARCHAR"/>
+        <result column="principal_person_id" property="principalPersonId" jdbcType="DECIMAL"/>
+        <result column="acceptance_num" property="acceptanceNum" jdbcType="VARCHAR"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="submit_date" property="submitDate" jdbcType="DATE"/>
+        <result column="complete_date" property="completeDate" jdbcType="DATE"/>
+        <result column="request_department_id" property="requestDepartmentId" jdbcType="DECIMAL"/>
+        <result column="purchase_department_id" property="purchaseDepartmentId" jdbcType="DECIMAL"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <select id="listAcceptanceHeader" resultType="org.hzero.halm.rcv.domain.entity.AcceptanceHeader">
+        SELECT
+        aah.acceptance_header_id,
+        aah.acceptance_type_id,
+        aat.short_name acceptance_type_meaning,
+        aat.acceptance_type_code,
+        aah.acceptance_status_code,
+        aah.principal_person_id,
+        he.name principal_person_meaning,
+        aah.acceptance_num,
+        aah.title,
+        aah.submit_date,
+        aah.complete_date,
+        aah.request_department_id,
+        request_department.org_name request_department_meaning,
+        aah.purchase_department_id,
+        purchase_department.org_name purchase_department_meaning,
+        aah.description,
+        aah.tenant_id,
+        aah.object_version_number
+        FROM
+        arcv_acceptance_header aah
+        LEFT JOIN arcv_acceptance_type aat ON aat.acceptance_type_id = aah.acceptance_type_id
+        LEFT JOIN hpfm_employee he ON he.employee_id = aah.principal_person_id
+        LEFT JOIN amdm_organization request_department ON request_department.org_id = aah.request_department_id
+        LEFT JOIN amdm_organization purchase_department ON purchase_department.org_id =
+        aah.purchase_department_id
+        WHERE
+        1 = 1
+        AND aah.tenant_id=#{tenantId}
+        <if test="acceptanceHeaderId != null">
+            AND aah.acceptance_header_id = #{acceptanceHeaderId}
+        </if>
+        <if test="acceptanceTypeId != null">
+            AND aah.acceptance_type_id = #{acceptanceTypeId}
+        </if>
+        <if test="acceptanceTypeMeaning != null and acceptanceTypeMeaning !='' ">
+            AND aat.short_name = #{acceptanceTypeMeaning}
+        </if>
+        <if test="acceptanceStatusCode != null and acceptanceStatusCode !='' ">
+            AND aah.acceptance_status_code = #{acceptanceStatusCode}
+        </if>
+        <if test="principalPersonId != null ">
+            AND aah.principal_person_id = #{principalPersonId}
+        </if>
+        <if test="principalPersonMeaning != null and principalPersonMeaning !='' ">
+            AND he.name = #{principalPersonMeaning}
+        </if>
+        <if test="acceptanceNum != null and acceptanceNum !='' ">
+            <bind name="acceptanceNumLike" value="'%'+acceptanceNum+'%'"/>
+            AND aah.acceptance_num LIKE #{acceptanceNumLike}
+        </if>
+        <if test="title != null and title !='' ">
+            <bind name="titleLike" value="'%'+title+'%'"/>
+            AND aah.title LIKE #{titleLike}
+        </if>
+        <if test="submitDate != null and submitDate !='' ">
+            AND aah.submit_date = #{submitDate}
+        </if>
+        <if test="completeDate != null and completeDate !='' ">
+            AND aah.complete_date = #{completeDate}
+        </if>
+        <if test="requestDepartmentId != null ">
+            AND aah.request_department_id = #{requestDepartmentId}
+        </if>
+        <if test="requestDepartmentMeaning != null and requestDepartmentMeaning !='' ">
+            AND aah.request_department_meaning = #{requestDepartmentMeaning}
+        </if>
+        <if test="purchaseDepartmentId != null ">
+            AND aah.purchase_department_id = #{purchaseDepartmentId}
+        </if>
+        <if test="purchaseDepartmentMeaning != null and purchaseDepartmentMeaning !='' ">
+            AND aah.purchase_department_meaning = #{purchaseDepartmentMeaning}
+        </if>
+        <if test="description != null and description !='' ">
+            AND aah.description = #{description}
+        </if>
+    </select>
+    <select id="listAcceptanceHeaderByCondition" resultType="org.hzero.halm.rcv.domain.entity.AcceptanceHeader">
+        SELECT
+        aah.acceptance_header_id,
+        aah.acceptance_type_id,
+        aat.short_name acceptance_type_meaning,
+        aat.acceptance_type_code,
+        aah.acceptance_status_code,
+        aah.principal_person_id,
+        he.name principal_person_meaning,
+        aah.acceptance_num,
+        aah.title,
+        aah.submit_date,
+        aah.complete_date,
+        aah.request_department_id,
+        request_department.org_name request_department_meaning,
+        aah.purchase_department_id,
+        purchase_department.org_name purchase_department_meaning,
+        aah.description,
+        aah.tenant_id,
+        aah.object_version_number
+        FROM
+        arcv_acceptance_header aah
+        LEFT JOIN arcv_acceptance_type aat ON aat.acceptance_type_id = aah.acceptance_type_id
+        LEFT JOIN hpfm_employee he ON he.employee_id = aah.principal_person_id
+        LEFT JOIN amdm_organization request_department ON request_department.org_id = aah.request_department_id
+        LEFT JOIN amdm_organization purchase_department ON purchase_department.org_id =
+        aah.purchase_department_id
+        WHERE
+        1 = 1
+        AND aah.tenant_id=#{tenantId}
+        <if test="condition != null and condition !=''">
+            <bind name="conditionLike" value="'%'+condition+'%'"/>
+            AND (
+            aah.title LIKE #{conditionLike}
+            OR aah.acceptance_num LIKE #{conditionLike}
+            OR aat.short_name LIKE #{conditionLike})
+        </if>
+    </select>
+    <select id="listAcceptanceHeaderByIds" resultType="org.hzero.halm.rcv.domain.entity.AcceptanceHeader">
+        SELECT
+        aah.acceptance_header_id,
+        aah.acceptance_type_id,
+        aat.short_name acceptance_type_meaning,
+        aat.acceptance_type_code,
+        aah.acceptance_status_code,
+        aah.principal_person_id,
+        he.name principal_person_meaning,
+        aah.acceptance_num,
+        aah.title,
+        aah.submit_date,
+        aah.complete_date,
+        aah.request_department_id,
+        request_department.org_name request_department_meaning,
+        aah.purchase_department_id,
+        purchase_department.org_name purchase_department_meaning,
+        aah.description,
+        aah.tenant_id,
+        aah.object_version_number
+        FROM
+        arcv_acceptance_header aah
+        LEFT JOIN arcv_acceptance_type aat ON aat.acceptance_type_id = aah.acceptance_type_id
+        LEFT JOIN hpfm_employee he ON he.employee_id = aah.principal_person_id
+        LEFT JOIN amdm_organization request_department ON request_department.org_id = aah.request_department_id
+        LEFT JOIN amdm_organization purchase_department ON purchase_department.org_id =
+        aah.purchase_department_id
+        WHERE
+        1 = 1
+        AND aah.tenant_id=#{tenantId}
+        <if test="acceptanceHeaderIds !=null and acceptanceHeaderIds.size>0">
+            AND aah.acceptance_header_id IN
+            <foreach collection="acceptanceHeaderIds" open="(" item="acceptanceHeaderId" close=")" separator=",">
+                #{acceptanceHeaderId}
+            </foreach>
+        </if>
+    </select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

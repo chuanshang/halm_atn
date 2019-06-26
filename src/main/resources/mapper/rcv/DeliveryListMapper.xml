@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.rcv.infra.mapper.DeliveryListMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.rcv.domain.entity.DeliveryList">
+        <result column="delivery_list_id" property="deliveryListId" jdbcType="DECIMAL"/>
+        <result column="delivery_list_name" property="deliveryListName" jdbcType="VARCHAR"/>
+        <result column="contract_id" property="contractId" jdbcType="DECIMAL"/>
+        <result column="contract_line_id" property="contractLineId" jdbcType="DECIMAL"/>
+        <result column="project_id" property="projectId" jdbcType="DECIMAL"/>
+        <result column="wbs_line_id" property="wbsLineId" jdbcType="DECIMAL"/>
+        <result column="budget_header_id" property="budgetHeaderId" jdbcType="DECIMAL"/>
+        <result column="budget_line_id" property="budgetLineId" jdbcType="DECIMAL"/>
+        <result column="product_category_id" property="productCategoryId" jdbcType="DECIMAL"/>
+        <result column="assets_set_id" property="assetsSetId" jdbcType="DECIMAL"/>
+        <result column="specifications" property="specifications" jdbcType="VARCHAR"/>
+        <result column="unit_price" property="unitPrice" jdbcType="DECIMAL"/>
+        <result column="uom_id" property="uomId" jdbcType="DECIMAL"/>
+        <result column="need_delivery_quantity" property="needDeliveryQuantity" jdbcType="DECIMAL"/>
+        <result column="delivered_quantity" property="deliveredQuantity" jdbcType="DECIMAL"/>
+        <result column="delivery_complete_date" property="deliveryCompleteDate" jdbcType="DATE"/>
+        <result column="delivery_complete_flag" property="deliveryCompleteFlag" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <select id="listDeliveryList" resultType="org.hzero.halm.rcv.domain.entity.DeliveryList">
+        SELECT
+        adl.delivery_list_id,
+        adl.delivery_list_name,
+        adl.contract_id,
+        adl.contract_line_id,
+        adl.project_id,
+        apr.project_name projectMeaning,
+        adl.wbs_line_id,
+        wbsl.task_name wbs_line_meaning,
+        adl.budget_header_id,
+        adl.budget_line_id,
+        adl.product_category_id,
+        apc.product_category_name product_category_meaning,
+        adl.assets_set_id,
+        ass.assets_set_name assets_set_meaning,
+        adl.specifications,
+        adl.unit_price,
+        adl.uom_id,
+        uom.uom_name uomMeaning,
+        adl.need_delivery_quantity,
+        adl.delivered_quantity,
+        adl.delivery_complete_date,
+        adl.delivery_complete_flag,
+        adl.description,
+        adl.tenant_id,
+        adl.object_version_number
+        FROM
+        arcv_delivery_list adl
+        left join aafm_assets_set ass on ass.assets_set_id = adl.assets_set_id
+        left join aafm_product_categories apc on apc.product_category_id = adl.product_category_id
+        left join appm_project_info apr on apr.project_id=adl.project_id
+        left join appm_project_wbs_lines wbsl on wbsl.wbs_line_id=adl.wbs_line_id
+        left join hpfm_uom uom on uom.uom_id = adl.uom_id
+        WHERE 1=1
+        AND adl.tenant_id=#{tenantId}
+        <if test="deliveryListId !=null">
+            AND adl.delivery_list_id=#{deliveryListId}
+        </if>
+        <if test="deliveryListName !=null and deliveryListName !=''">
+            AND adl.delivery_list_name=#{deliveryListName}
+        </if>
+        <if test="contractId !=null">
+            AND adl.contract_id=#{contractId}
+        </if>
+        <if test="contractLineId !=null">
+            AND adl.contract_line_id=#{contractLineId}
+        </if>
+        <if test="projectId !=null">
+            AND adl.project_id=#{projectId}
+        </if>
+        <if test="wbsLineId !=null">
+            AND adl.wbs_line_id=#{wbsLineId}
+        </if>
+        <if test="budgetHeaderId !=null">
+            AND adl.budget_header_id=#{budgetHeaderId}
+        </if>
+        <if test="budgetLineId !=null">
+            AND adl.budget_line_id=#{budgetLineId}
+        </if>
+        <if test="productCategoryId !=null">
+            AND adl.product_category_id=#{productCategoryId}
+        </if>
+        <if test="assetsSetId !=null">
+            AND adl.assets_set_id=#{assetsSetId}
+        </if>
+        <if test="specifications !=null and specifications!=''">
+            AND adl.specifications=#{specifications}
+        </if>
+        <if test="unitPrice !=null and unitPrice!=''">
+            AND adl.unit_price=#{unitPrice}
+        </if>
+        <if test="uomId !=null">
+            AND adl.uom_id=#{uomId}
+        </if>
+        <if test="needDeliveryQuantity !=null and needDeliveryQuantity!=''">
+            AND adl.need_delivery_quantity=#{needDeliveryQuantity}
+        </if>
+        <if test="deliveredQuantity !=null">
+            AND adl.delivered_quantity=#{deliveredQuantity}
+        </if>
+        <if test="deliveryCompleteDate !=null">
+            AND adl.delivery_complete_date=#{deliveryCompleteDate}
+        </if>
+        <if test="deliveryCompleteFlag !=null">
+            AND adl.delivery_complete_flag=#{deliveryCompleteFlag}
+        </if>
+    </select>
+    <select id="retrieveDeliveryList" resultType="org.hzero.halm.rcv.domain.entity.DeliveryList">
+        SELECT
+        adl.delivery_list_id,
+        adl.delivery_list_name,
+        adl.contract_id,
+        adl.contract_line_id,
+        adl.project_id,
+        apr.project_name projectMeaning,
+        adl.wbs_line_id,
+        wbsl.task_name wbs_line_meaning,
+        adl.budget_header_id,
+        adl.budget_line_id,
+        adl.product_category_id,
+        apc.product_category_name product_category_meaning,
+        adl.assets_set_id,
+        ass.assets_set_name assets_set_meaning,
+        adl.specifications,
+        adl.unit_price,
+        adl.uom_id,
+        uom.uom_name uomMeaning,
+        adl.need_delivery_quantity,
+        adl.delivered_quantity,
+        adl.delivery_complete_date,
+        adl.delivery_complete_flag,
+        adl.description,
+        adl.tenant_id,
+        adl.object_version_number
+        FROM
+        arcv_delivery_list adl
+        LEFT JOIN aafm_assets_set ass
+        ON ( ass.assets_set_id = adl.assets_set_id )
+        LEFT JOIN aafm_product_categories apc
+        ON ( apc.product_category_id = adl.product_category_id )
+        LEFT JOIN appm_project_info apr
+        ON(apr.project_id=adl.project_id)
+        LEFT JOIN appm_project_wbs_lines wbsl
+        ON(wbsl.wbs_line_id=adl.wbs_line_id)
+        LEFT JOIN hpfm_uom uom
+        ON ( uom.uom_id = adl.uom_id )
+        WHERE 1=1
+        AND adl.tenant_id=#{tenantId}
+        <if test="condition != null and condition !='' ">
+            AND (adl.delivery_list_name LIKE CONCAT('%',#{condition},'%')
+              OR ass.assets_set_name LIKE CONCAT('%',#{condition},'%')
+              )
+        </if>
+    </select>
+</mapper>
